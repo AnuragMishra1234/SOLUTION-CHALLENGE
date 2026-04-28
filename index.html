@@ -1,0 +1,2024 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — Rapid Crisis Response & Emergency Coordination</title>
+<meta name="description" content="NEXUS is the real-time crisis coordination layer for hotels, resorts, and hospitality venues. Instant detection, staff coordination, and first responder handoff in one system.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #050505;
+  --bg-secondary: #0A0A0C;
+  --bg-card: #0F0F12;
+  --bg-card-hover: #141418;
+  --border: rgba(255,255,255,0.07);
+  --border-accent: rgba(0,214,255,0.25);
+  --text-primary: rgba(255,255,255,0.92);
+  --text-muted: rgba(255,255,255,0.50);
+  --text-dim: rgba(255,255,255,0.30);
+  --accent-blue: #0050FF;
+  --accent-cyan: #00D6FF;
+  --accent-red: #FF2D2D;
+  --accent-amber: #FFB800;
+  --accent-green: #00FF87;
+  --gradient-accent: linear-gradient(135deg, #0050FF, #00D6FF);
+  --gradient-danger: linear-gradient(135deg, #FF2D2D, #FF6B00);
+  --gradient-safe: linear-gradient(135deg, #00FF87, #00D6FF);
+  --shadow-glow-blue: 0 0 30px rgba(0,80,255,0.2);
+  --shadow-glow-cyan: 0 0 20px rgba(0,214,255,0.15);
+  --shadow-glow-red: 0 0 30px rgba(255,45,45,0.3);
+  --radius-card: 16px;
+  --radius-pill: 100px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg-primary);color:var(--text-primary);font-family:'DM Sans',sans-serif;cursor:none;overflow-x:hidden;}
+.cursor-dot{position:fixed;width:8px;height:8px;background:#fff;border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:background 0.2s;}
+.cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(255,255,255,0.4);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width 0.2s,height 0.2s,border-color 0.2s;}
+.cursor-ring.hover{width:48px;height:48px;border-color:var(--accent-cyan);}
+.cursor-ring.danger{border-color:var(--accent-red);}
+#scroll-progress{position:fixed;top:0;left:0;height:2px;background:var(--gradient-accent);z-index:99998;width:0%;transition:width 0.05s linear;}
+.view{display:none;min-height:100vh;}
+.view.active{display:block;}
+.view-transition-out{animation:viewOut 0.3s ease forwards;}
+.view-transition-in{animation:viewIn 0.4s ease 0.15s forwards;opacity:0;}
+@keyframes viewOut{to{opacity:0;transform:translateY(-20px);}}
+@keyframes viewIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div id="scroll-progress"></div>
+
+<!-- SIDEBAR (views 2-5) -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">N</div>
+  <a class="sidebar-item" data-view="landing" title="Landing"><span class="sidebar-icon">🏠</span><span class="sidebar-label">Landing</span></a>
+  <a class="sidebar-item" data-view="guest-sos" title="Guest SOS"><span class="sidebar-icon">🆘</span><span class="sidebar-label">Guest SOS</span></a>
+  <a class="sidebar-item" data-view="staff-dashboard" title="Staff War Room"><span class="sidebar-icon">🖥️</span><span class="sidebar-label">War Room</span></a>
+  <a class="sidebar-item" data-view="responder-brief" title="Responder Brief"><span class="sidebar-icon">🚑</span><span class="sidebar-label">Responder Brief</span></a>
+  <a class="sidebar-item" data-view="how-works" title="How It Works"><span class="sidebar-icon">🔄</span><span class="sidebar-label">How It Works</span></a>
+  <a class="sidebar-item" data-view="demo-mode" title="Demo Mode"><span class="sidebar-icon">▶️</span><span class="sidebar-label">Demo Mode</span></a>
+</nav>
+
+<!-- RESPONSE MODAL -->
+<div class="modal-overlay" id="responseModal" onclick="closeModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-header">🚨 RESPONSE CAPABILITIES</div>
+    <div class="modal-subheader">NEXUS integrates with emergency response systems worldwide</div>
+    <div class="modal-body">
+      <div class="modal-body-text"><strong>Real-Time Incident Briefing</strong></div>
+      <ul class="modal-body-list">
+        <li>📣 Auto-generated live brief updated in real-time</li>
+        <li>📍 Full incident history and timeline</li>
+        <li>📍 Precise location with access routes</li>
+        <li>📡 Staff contact info and on-scene status</li>
+      </ul>
+      
+      <div class="modal-body-text" style="margin-top:24px;"><strong>Responder Integration</strong></div>
+      <ul class="modal-body-list">
+        <li>📱 Share link works with dispatch systems</li>
+        <li>📱 Compatible with major EMS platforms</li>
+        <li>📱 Auto-syncs with 911 dispatch databases</li>
+        <li>📱 Real-time updates during response</li>
+      </ul>
+      
+      <div class="modal-body-text" style="margin-top:24px;"><strong>Performance Metrics</strong></div>
+      <ul class="modal-body-list">
+        <li>⏱ Avg response time: 8 min → 47 sec</li>
+        <li>⏱ Information loss eliminated: 100%</li>
+        <li>⏱ Staff coordination silos: 3 → 0</li>
+        <li>⏱ Responder handoff friction: Zero</li>
+      </ul>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn-secondary" onclick="closeModal()">Close</button>
+      <button class="modal-btn-primary" onclick="switchView('responder-brief'); closeModal();">See Live Brief →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="modal-overlay" id="contactModal" onclick="closeModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-header">📞 GET IN TOUCH</div>
+    <div class="modal-subheader">Questions? Ready to deploy? Let's talk.</div>
+    <div class="modal-body">
+      <form onsubmit="handleContactSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Your Name</label>
+          <input class="form-input" type="text" placeholder="Full name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Organization</label>
+          <input class="form-input" type="text" placeholder="Hotel/Venue name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea class="form-textarea" placeholder="Tell us about your needs..." required></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="modal-btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="modal-btn-primary">Send Message →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="view active" id="view-landing">
+
+<style>
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;height:100vh;width:60px;background:rgba(5,5,5,0.95);border-right:1px solid var(--border);z-index:900;display:none;flex-direction:column;align-items:center;padding:20px 0;gap:4px;transition:width 0.3s cubic-bezier(0.4,0,0.2,1);overflow:hidden;}
+.sidebar:hover{width:220px;align-items:flex-start;padding:20px 0;}
+.sidebar-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent-cyan);letter-spacing:0.1em;margin-bottom:24px;padding:0 18px;white-space:nowrap;}
+.sidebar-item{display:flex;align-items:center;gap:14px;width:100%;padding:12px 18px;text-decoration:none;color:var(--text-muted);font-size:13px;font-weight:500;letter-spacing:0.03em;border-left:2px solid transparent;transition:all 0.2s;cursor:none;white-space:nowrap;}
+.sidebar-item:hover,.sidebar-item.active{color:var(--accent-cyan);background:var(--bg-card);border-left-color:var(--accent-cyan);}
+.sidebar-icon{font-size:18px;min-width:24px;text-align:center;}
+.sidebar-label{opacity:0;transition:opacity 0.2s 0.05s;}
+.sidebar:hover .sidebar-label{opacity:1;}
+/* NAVBAR */
+.nexus-nav{position:fixed;top:0;left:0;right:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;z-index:1000;background:rgba(5,5,5,0);transition:background 0.3s,backdrop-filter 0.3s;}
+.nexus-nav.scrolled{background:rgba(5,5,5,0.85);backdrop-filter:blur(20px);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.1em;color:var(--text-primary);display:flex;align-items:center;gap:6px;}
+.nav-logo-dot{width:6px;height:6px;background:var(--accent-cyan);border-radius:50%;animation:pulseDot 2s infinite;}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.4);}}
+.nav-links{display:flex;gap:28px;}
+.nav-links a{color:var(--text-muted);text-decoration:none;font-size:13px;letter-spacing:0.05em;transition:color 0.2s;cursor:none;}
+.nav-links a:hover{color:var(--text-primary);}
+.nav-cta{position:relative;padding:8px 20px;font-size:13px;font-weight:500;color:var(--text-primary);background:transparent;border:none;cursor:none;font-family:'DM Sans',sans-serif;letter-spacing:0.03em;}
+.nav-cta::before{content:'';position:absolute;inset:-1px;background:var(--gradient-accent);border-radius:var(--radius-pill);z-index:-1;}
+.nav-cta::after{content:'';position:absolute;inset:0;background:var(--bg-primary);border-radius:var(--radius-pill);z-index:-1;}
+.nav-cta:hover{box-shadow:var(--shadow-glow-cyan);}
+/* STICKY CANVAS SECTION */
+.scroll-canvas-wrapper{height:500vh;position:relative;}
+.scroll-canvas-container{position:sticky;top:0;height:100vh;width:100%;overflow:hidden;}
+#hero-canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
+.canvas-overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+.text-phase{position:absolute;opacity:0;transition:opacity 0.6s,transform 0.6s;transform:translateY(20px);}
+.text-phase.visible{opacity:1;transform:translateY(0);}
+.phase-eyebrow{font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent-cyan);margin-bottom:12px;}
+.phase-headline{font-family:'Bebas Neue',sans-serif;color:var(--text-primary);line-height:0.95;}
+.phase-body{color:var(--text-dim);line-height:1.7;margin-top:16px;}
+.phase1{top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;width:min(600px,90vw);}
+.phase1 .phase-headline{font-size:clamp(72px,10vw,120px);text-shadow:0 0 80px rgba(0,214,255,0.3);}
+.phase1-sub{font-size:22px;color:var(--text-muted);margin-top:8px;}
+.phase1-body{font-size:16px;color:var(--text-dim);margin-top:16px;}
+.cta-pill{display:inline-block;margin-top:28px;padding:12px 32px;background:transparent;border:1px solid var(--border-accent);border-radius:var(--radius-pill);color:var(--accent-cyan);font-size:14px;font-weight:500;cursor:none;transition:all 0.3s;animation:floatPill 3s ease-in-out infinite;}
+.cta-pill:hover{background:rgba(0,214,255,0.1);box-shadow:var(--shadow-glow-cyan);}
+@keyframes floatPill{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.phase2{top:50%;left:8vw;transform:translateY(-50%);max-width:520px;}
+.phase2 .phase-headline{font-size:clamp(48px,6vw,80px);}
+.phase3{top:50%;right:8vw;transform:translateY(-50%);text-align:right;max-width:520px;}
+.phase3 .phase-headline{font-size:clamp(44px,5vw,72px);}
+.phase3-list{list-style:none;margin-top:20px;display:flex;flex-direction:column;gap:10px;}
+.phase3-list li{font-size:15px;color:var(--text-muted);display:flex;align-items:center;justify-content:flex-end;gap:8px;}
+.phase3-list li::before{content:'·';color:var(--accent-cyan);}
+.phase4{top:50%;left:8vw;transform:translateY(-50%);max-width:520px;}
+.phase4 .phase-headline{font-size:clamp(44px,5vw,72px);}
+.phase5{top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;width:min(700px,90vw);}
+.phase5 .phase-headline{font-size:clamp(60px,8vw,100px);}
+.phase5-sub{font-size:20px;color:var(--text-muted);margin-top:16px;}
+.phase5-btns{display:flex;gap:16px;justify-content:center;margin-top:32px;flex-wrap:wrap;}
+.btn-primary{padding:14px 36px;background:var(--gradient-accent);border:none;border-radius:var(--radius-pill);color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-glow-blue);}
+.btn-secondary{padding:14px 36px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-pill);color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;transition:all 0.2s;}
+.btn-secondary:hover{border-color:var(--border-accent);color:var(--accent-cyan);}
+</style>
+
+<nav class="nexus-nav" id="nexusNav">
+  <div class="nav-logo">NEXUS<span class="nav-logo-dot"></span></div>
+  <div class="nav-links">
+    <a href="#" onclick="smoothScroll('platform'); return false;">Platform</a>
+    <a href="#" onclick="smoothScroll('technology'); return false;">Technology</a>
+    <a href="#" onclick="openModal('response'); return false;">Response</a>
+    <a href="#" onclick="smoothScroll('deploy'); return false;">Deploy</a>
+    <a href="#" onclick="openModal('contact'); return false;">Contact</a>
+  </div>
+  <div style="display: flex; gap: 12px;">
+    <button class="nav-cta" onclick="switchView('how-works')" style="background: transparent; border: 1px solid rgba(0,214,255,0.4); color: var(--accent-cyan);">How It Works</button>
+    <button class="nav-cta" onclick="switchView('staff-dashboard')">Launch Dashboard →</button>
+  </div>
+</nav>
+
+<!-- STICKY CANVAS -->
+<div class="scroll-canvas-wrapper" id="canvasWrapper">
+  <div class="scroll-canvas-container">
+    <canvas id="hero-canvas"></canvas>
+    <div class="canvas-overlay">
+      <div class="text-phase phase1" id="phase1Text">
+        <div class="phase-eyebrow">HOSPITALITY CRISIS RESPONSE</div>
+        <div class="phase-headline">NEXUS</div>
+        <div class="phase1-sub">When every second costs lives.</div>
+        <div class="phase1-body">The real-time crisis coordination layer for hotels, resorts,<br>and hospitality venues worldwide.</div>
+        <div class="cta-pill">See How It Works ↓</div>
+      </div>
+      <div class="text-phase phase2" id="phase2Text">
+        <div class="phase-eyebrow">INSTANT DETECTION</div>
+        <div class="phase-headline">GUEST TRIGGERS ALERT IN ONE TAP.</div>
+        <div class="phase-body" style="max-width:400px">No app download. No login. Just scan the QR code in any room, tap your crisis type, and NEXUS instantly notifies every relevant staff member — with your exact location.</div>
+      </div>
+      <div class="text-phase phase3" id="phase3Text">
+        <div class="phase-eyebrow">STAFF COORDINATION</div>
+        <div class="phase-headline">ZERO FRAGMENTATION.<br>ONE WAR ROOM.</div>
+        <ul class="phase3-list">
+          <li>Live floor map shows every active incident.</li>
+          <li>Staff claim incidents — no duplicate response.</li>
+          <li>Broadcast to any floor instantly.</li>
+        </ul>
+      </div>
+      <div class="text-phase phase4" id="phase4Text">
+        <div class="phase-eyebrow">FIRST RESPONDER BRIDGE</div>
+        <div class="phase-headline">RESPONDERS BRIEFED BEFORE ARRIVAL.</div>
+        <div class="phase-body" style="max-width:460px">One tap generates a live shareable brief — crisis type, location, access routes, actions taken — updated in real time as responders drive to the scene.</div>
+      </div>
+      <div class="text-phase phase5" id="phase5Text">
+        <div class="phase-headline">EVERY CRISIS.<br>CONTROLLED.</div>
+        <div class="phase5-sub">NEXUS eliminates the 3 communication gaps that cost lives in hospitality emergencies.</div>
+        <div class="phase5-btns">
+          <button class="btn-primary" onclick="switchView('staff-dashboard')">Launch Dashboard</button>
+          <button class="btn-secondary" onclick="switchView('demo-mode')">Run Live Demo →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- STATIC SECTIONS BELOW CANVAS -->
+<style>
+.gap-section{background:var(--bg-secondary);padding:120px 10vw;}
+.section-headline{font-family:'Bebas Neue',sans-serif;font-size:clamp(42px,6vw,72px);margin-bottom:60px;}
+.gap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.gap-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-card);padding:40px;transition:transform 0.3s,box-shadow 0.3s,background 0.3s;}
+.gap-card:hover{background:var(--bg-card-hover);transform:translateY(-4px);box-shadow:var(--shadow-glow-cyan);}
+.gap-card-num{font-family:'Bebas Neue',sans-serif;font-size:52px;margin-bottom:12px;}
+.gap-card-title{font-size:18px;font-weight:600;margin-bottom:12px;}
+.gap-card-body{font-size:14px;color:var(--text-muted);line-height:1.75;}
+.gap-card.red{border-top:3px solid var(--accent-red);}
+.gap-card.amber{border-top:3px solid var(--accent-amber);}
+.gap-card.cyan{border-top:3px solid var(--accent-cyan);}
+.gap-card.red .gap-card-num{color:var(--accent-red);}
+.gap-card.amber .gap-card-num{color:var(--accent-amber);}
+.gap-card.cyan .gap-card-num{color:var(--accent-cyan);}
+.stat-row{display:flex;justify-content:center;gap:80px;margin-top:80px;flex-wrap:wrap;}
+.stat-item{text-align:center;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,60px);color:var(--text-primary);display:block;}
+.stat-label{font-size:13px;color:var(--accent-cyan);letter-spacing:0.05em;margin-top:4px;display:block;}
+.how-section{background:var(--bg-primary);padding:120px 10vw;text-align:center;}
+.how-flow{display:flex;align-items:center;justify-content:center;gap:0;margin-top:60px;flex-wrap:wrap;}
+.how-step{flex:1;min-width:240px;max-width:320px;background:var(--bg-card);border:1px solid var(--border-accent);border-radius:var(--radius-card);padding:40px;transition:transform 0.3s,box-shadow 0.3s,border-color 0.3s;position:relative;}
+.how-step:hover{transform:translateY(-4px);box-shadow:var(--shadow-glow-cyan);border-color:rgba(0,214,255,0.5);}
+.how-icon{font-size:36px;margin-bottom:16px;display:block;}
+.how-title{font-size:20px;font-weight:700;margin-bottom:10px;}
+.how-body{font-size:14px;color:var(--text-muted);line-height:1.7;}
+.how-arrow{font-size:28px;color:var(--accent-cyan);padding:0 8px;opacity:0.6;}
+.deploy-section{background:var(--bg-secondary);padding:140px 10vw;text-align:center;}
+.deploy-headline{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,7vw,96px);line-height:0.95;margin-bottom:24px;}
+.deploy-body{font-size:18px;color:var(--text-muted);max-width:560px;margin:0 auto 40px;line-height:1.7;}
+.btn-gradient{padding:16px 48px;background:var(--gradient-accent);border:none;border-radius:var(--radius-pill);color:#fff;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:none;transition:transform 0.2s,box-shadow 0.2s;display:inline-block;}
+.btn-gradient:hover{transform:translateY(-3px);box-shadow:0 0 40px rgba(0,80,255,0.35);}
+.landing-footer{background:var(--bg-primary);border-top:1px solid var(--border);padding:32px 10vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.1em;}
+.footer-copy{font-size:12px;color:var(--text-dim);}
+.footer-links{display:flex;gap:24px;}
+.footer-links a{font-size:12px;color:var(--text-dim);text-decoration:none;transition:color 0.2s;}
+.footer-links a:hover{color:var(--accent-cyan);}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:2000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s;}
+.modal-overlay.active{display:flex;opacity:1;}
+.modal-content{background:var(--bg-card);border:1px solid var(--border-accent);border-radius:24px;padding:48px;max-width:600px;width:90%;box-shadow:0 0 60px rgba(0,214,255,0.2);animation:modalSlideUp 0.4s ease;max-height:90vh;overflow-y:auto;}
+@keyframes modalSlideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--text-muted);font-size:28px;cursor:none;transition:color 0.2s;}
+.modal-close:hover{color:var(--accent-cyan);}
+.modal-header{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:0.05em;margin-bottom:16px;}
+.modal-subheader{font-size:14px;color:var(--text-muted);margin-bottom:32px;letter-spacing:0.05em;}
+.modal-body{margin-bottom:32px;}
+.modal-body-text{font-size:14px;color:var(--text-muted);line-height:1.8;margin-bottom:16px;}
+.modal-body-list{list-style:none;padding:0;margin:16px 0;}
+.modal-body-list li{padding:12px;margin-bottom:8px;background:rgba(0,214,255,0.08);border-left:3px solid var(--accent-cyan);border-radius:6px;font-size:14px;color:var(--text-muted);}
+.form-group{margin-bottom:20px;}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px;letter-spacing:0.05em;}
+.form-input{width:100%;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;transition:border-color 0.2s;}
+.form-input:focus{outline:none;border-color:var(--accent-cyan);}
+.form-textarea{width:100%;min-height:100px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;resize:vertical;}
+.form-textarea:focus{outline:none;border-color:var(--accent-cyan);}
+.modal-footer{display:flex;gap:12px;}
+.modal-btn-secondary{flex:1;padding:12px 24px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:none;transition:all 0.2s;}
+.modal-btn-secondary:hover{border-color:var(--border-accent);color:var(--accent-cyan);}
+.modal-btn-primary{flex:1;padding:12px 24px;background:var(--gradient-accent);border:none;border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:none;transition:transform 0.2s,box-shadow 0.2s;}
+.modal-btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-glow-blue);}
+</style>
+
+<!-- 3-GAP SECTION -->
+<section class="gap-section" id="platform">
+  <div class="section-headline">THE 3-GAP PROBLEM.</div>
+  <div class="gap-grid">
+    <div class="gap-card red">
+      <div class="gap-card-num">01</div>
+      <div class="gap-card-title">Guest → Staff Gap</div>
+      <div class="gap-card-body">Distressed guests can't reach help fast enough. Traditional phones, intercoms, and front desk calls create fatal delays in critical moments.</div>
+    </div>
+    <div class="gap-card amber">
+      <div class="gap-card-num">02</div>
+      <div class="gap-card-title">Staff → Staff Gap</div>
+      <div class="gap-card-body">No shared situational picture. Multiple staff members respond to same incident. Others miss critical ones. Radio chatter creates confusion, not clarity.</div>
+    </div>
+    <div class="gap-card cyan">
+      <div class="gap-card-num">03</div>
+      <div class="gap-card-title">Staff → Responder Gap</div>
+      <div class="gap-card-body">First responders arrive blind. Verbal handoffs are lossy. Precious minutes lost explaining what trained staff already know in detail.</div>
+    </div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-item"><span class="stat-num">8min → 47sec</span><span class="stat-label">Average response time reduction</span></div>
+    <div class="stat-item"><span class="stat-num">3 → 0</span><span class="stat-label">Communication silos eliminated</span></div>
+    <div class="stat-item"><span class="stat-num">100%</span><span class="stat-label">Staff coverage, zero app install</span></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="technology">
+  <div class="section-headline">THREE SURFACES. ONE BRAIN.</div>
+  <div class="how-flow">
+    <div class="how-step"><span class="how-icon">📱</span><div class="how-title">Guest SOS</div><div class="how-body">QR scan. One tap. Location auto-detected. No app. No login. No friction.</div></div>
+    <div class="how-arrow">→</div>
+    <div class="how-step"><span class="how-icon">🖥️</span><div class="how-title">Staff War Room</div><div class="how-body">Live floor map. Incident claim. Floor broadcast. Zero duplicate response.</div></div>
+    <div class="how-arrow">→</div>
+    <div class="how-step"><span class="how-icon">🚑</span><div class="how-title">Responder Brief</div><div class="how-body">Auto-generated live link. Real-time updates. No verbal handoff required.</div></div>
+  </div>
+</section>
+
+<!-- DEPLOY SECTION -->
+<section class="deploy-section" id="deploy">
+  <div class="deploy-headline">DEPLOY IN ANY VENUE.<br>ZERO INFRASTRUCTURE.</div>
+  <div class="deploy-body">Works on existing WiFi. No hardware installation. Print QR codes. Onboard staff in 20 minutes. Operational before checkout.</div>
+  <button class="btn-gradient" onclick="switchView('staff-dashboard')">Start Free Trial</button>
+</section>
+
+<!-- FOOTER -->
+<footer class="landing-footer">
+  <div class="footer-logo">NEXUS<span style="color:var(--accent-cyan)">.</span></div>
+  <div class="footer-copy">© 2025 NEXUS Systems. Rapid Crisis Response.</div>
+  <div class="footer-links">
+    <a href="#platform">Platform</a>
+    <a href="#technology">Technology</a>
+    <a href="#deploy">Deploy</a>
+    <a href="#contact">Contact</a>
+  </div>
+</footer>
+</div><!-- /view-landing -->
+<!-- ═══════════════ VIEW 2: GUEST SOS ═══════════════ -->
+<div class="view" id="view-guest-sos">
+<style>
+.sos-view{min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(255,45,45,0.08) 0%,var(--bg-primary) 60%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px 40px 80px;}
+.sos-header{text-align:center;margin-bottom:48px;}
+.sos-property{font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;}
+.sos-title{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:0.05em;margin-bottom:4px;}
+.sos-room{font-size:16px;color:var(--accent-cyan);}
+.sos-crisis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:460px;width:100%;margin-bottom:40px;}
+.crisis-btn{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:none;transition:all 0.25s;position:relative;overflow:hidden;}
+.crisis-btn::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.25s;border-radius:14px;}
+.crisis-btn:hover::before{opacity:1;}
+.crisis-btn.selected{border-color:var(--accent-red)!important;background:rgba(255,45,45,0.1)!important;}
+.crisis-btn .c-icon{font-size:28px;}
+.crisis-btn .c-label{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);}
+.crisis-btn[data-type="medical"]::before{background:radial-gradient(rgba(255,45,45,0.15),transparent);}
+.crisis-btn[data-type="fire"]::before{background:radial-gradient(rgba(255,107,0,0.15),transparent);}
+.crisis-btn[data-type="security"]::before{background:radial-gradient(rgba(255,184,0,0.15),transparent);}
+.crisis-btn[data-type="maintenance"]::before{background:radial-gradient(rgba(0,214,255,0.12),transparent);}
+.crisis-btn[data-type="noise"]::before{background:radial-gradient(rgba(0,80,255,0.12),transparent);}
+.crisis-btn[data-type="other"]::before{background:radial-gradient(rgba(255,255,255,0.08),transparent);}
+.sos-panic-wrap{position:relative;margin-bottom:36px;}
+.sos-panic-ring{position:absolute;inset:-16px;border-radius:50%;border:1px solid rgba(255,45,45,0.2);animation:ringPulse 2s ease-out infinite;}
+.sos-panic-ring2{position:absolute;inset:-32px;border-radius:50%;border:1px solid rgba(255,45,45,0.1);animation:ringPulse 2s ease-out 0.4s infinite;}
+.sos-panic-ring3{position:absolute;inset:-48px;border-radius:50%;border:1px solid rgba(255,45,45,0.06);animation:ringPulse 2s ease-out 0.8s infinite;}
+@keyframes ringPulse{0%{transform:scale(0.8);opacity:0;}50%{opacity:1;}100%{transform:scale(1.4);opacity:0;}}
+.sos-panic-btn{width:140px;height:140px;border-radius:50%;background:var(--gradient-danger);border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:none;transition:transform 0.15s,box-shadow 0.3s;position:relative;z-index:2;box-shadow:0 0 40px rgba(255,45,45,0.4);}
+.sos-panic-btn:hover{transform:scale(1.06);box-shadow:0 0 60px rgba(255,45,45,0.6);}
+.sos-panic-btn:active{transform:scale(0.96);}
+.sos-panic-icon{font-size:36px;color:#fff;}
+.sos-panic-label{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;letter-spacing:0.1em;margin-top:4px;}
+.sos-note{font-size:13px;color:var(--text-dim);text-align:center;max-width:300px;line-height:1.6;}
+.sos-sent{display:none;flex-direction:column;align-items:center;gap:16px;text-align:center;animation:fadeIn 0.5s ease;}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.9);}to{opacity:1;transform:scale(1);}}
+.sos-sent-icon{font-size:64px;animation:bounceIn 0.6s cubic-bezier(0.68,-0.55,0.27,1.55);}
+@keyframes bounceIn{0%{transform:scale(0);}70%{transform:scale(1.2);}100%{transform:scale(1);}}
+.sos-sent-title{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--accent-green);}
+.sos-sent-body{font-size:15px;color:var(--text-muted);max-width:300px;line-height:1.7;}
+.sos-sent-eta{background:rgba(0,255,135,0.1);border:1px solid rgba(0,255,135,0.3);border-radius:12px;padding:16px 24px;font-size:14px;color:var(--accent-green);}
+.sos-reset{margin-top:8px;font-size:13px;color:var(--text-dim);cursor:none;text-decoration:underline;text-underline-offset:3px;}
+</style>
+<div class="sos-view">
+  <div id="sosForm">
+    <div class="sos-header">
+      <div class="sos-property">THE GRAND NEXUS HOTEL</div>
+      <div class="sos-title">EMERGENCY ASSISTANCE</div>
+      <div class="sos-room">Room 412 · Floor 4 · East Wing</div>
+    </div>
+    <div class="sos-crisis-grid">
+      <div class="crisis-btn" data-type="medical" onclick="selectCrisis(this,'Medical Emergency')"><div class="c-icon">🏥</div><div class="c-label">Medical</div></div>
+      <div class="crisis-btn" data-type="fire" onclick="selectCrisis(this,'Fire / Smoke')"><div class="c-icon">🔥</div><div class="c-label">Fire</div></div>
+      <div class="crisis-btn" data-type="security" onclick="selectCrisis(this,'Security Threat')"><div class="c-icon">🚨</div><div class="c-label">Security</div></div>
+      <div class="crisis-btn" data-type="maintenance" onclick="selectCrisis(this,'Maintenance')"><div class="c-icon">🔧</div><div class="c-label">Maintenance</div></div>
+      <div class="crisis-btn" data-type="noise" onclick="selectCrisis(this,'Noise Complaint')"><div class="c-icon">📢</div><div class="c-label">Noise</div></div>
+      <div class="crisis-btn" data-type="other" onclick="selectCrisis(this,'Other')"><div class="c-icon">❓</div><div class="c-label">Other</div></div>
+    </div>
+    <div class="sos-panic-wrap">
+      <div class="sos-panic-ring"></div>
+      <div class="sos-panic-ring2"></div>
+      <div class="sos-panic-ring3"></div>
+      <button class="sos-panic-btn" onclick="sendSOS()" id="sosPanicBtn">
+        <span class="sos-panic-icon">🆘</span>
+        <span class="sos-panic-label">SEND SOS</span>
+      </button>
+    </div>
+    <div class="sos-note">Select your emergency type above, then press the button. Help will be dispatched immediately.</div>
+  </div>
+  <div class="sos-sent" id="sosSent">
+    <div class="sos-sent-icon">✅</div>
+    <div class="sos-sent-title">HELP IS ON THE WAY</div>
+    <div class="sos-sent-body">Your alert has been sent to all available staff members. Please stay calm and remain in your room if safe to do so.</div>
+    <div class="sos-sent-eta">🕐 Estimated response: <strong>2–4 minutes</strong></div>
+    <div class="sos-reset" onclick="resetSOS()">Send another alert</div>
+  </div>
+</div>
+</div><!-- /view-guest-sos -->
+<!-- ═══════════════ VIEW 3: STAFF DASHBOARD ═══════════════ -->
+<div class="view" id="view-staff-dashboard">
+<style>
+.dash-layout{display:flex;height:100vh;overflow:hidden;}
+.dash-sidebar-space{width:60px;flex-shrink:0;}
+.dash-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg-secondary);}
+.dash-topbar{height:56px;background:var(--bg-primary);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0;}
+.dash-topbar-left{display:flex;align-items:center;gap:16px;}
+.dash-topbar-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.08em;}
+.dash-status-pill{display:flex;align-items:center;gap:6px;background:rgba(255,45,45,0.12);border:1px solid rgba(255,45,45,0.3);border-radius:var(--radius-pill);padding:4px 14px;font-size:12px;font-weight:600;color:var(--accent-red);}
+.dash-status-dot{width:7px;height:7px;background:var(--accent-red);border-radius:50%;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.dash-topbar-right{display:flex;align-items:center;gap:20px;}
+.dash-time{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;color:var(--text-muted);}
+.dash-staff-badge{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);}
+.staff-avatar{width:28px;height:28px;background:var(--gradient-accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+.dash-content{flex:1;display:grid;grid-template-columns:1fr 380px;overflow:hidden;}
+.dash-left{display:flex;flex-direction:column;overflow:hidden;padding:20px;}
+.dash-section-title{font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px;}
+/* FLOOR MAP */
+.floor-map-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-card);flex:1;overflow:hidden;position:relative;min-height:0;}
+.floor-map-canvas{width:100%;height:100%;display:block;}
+.floor-map-legend{position:absolute;bottom:12px;left:12px;display:flex;gap:12px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-dim);}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
+/* BROADCAST BAR */
+.broadcast-bar{margin-top:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;}
+.broadcast-input{flex:1;background:transparent;border:none;outline:none;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;placeholder-color:var(--text-dim);}
+.broadcast-input::placeholder{color:var(--text-dim);}
+.broadcast-floor-sel{background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;padding:6px 10px;outline:none;cursor:none;}
+.broadcast-send{background:var(--gradient-accent);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;padding:8px 20px;cursor:none;transition:opacity 0.2s;}
+.broadcast-send:hover{opacity:0.85;}
+/* RIGHT PANEL */
+.dash-right{background:var(--bg-primary);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;padding:20px;}
+.incident-list{display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;}
+.incident-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px;transition:border-color 0.2s,background 0.2s;position:relative;overflow:hidden;}
+.incident-card.critical{border-left:3px solid var(--accent-red);}
+.incident-card.warning{border-left:3px solid var(--accent-amber);}
+.incident-card.info{border-left:3px solid var(--accent-cyan);}
+.incident-card.resolved{border-left:3px solid var(--accent-green);opacity:0.6;}
+.incident-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.incident-type{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;}
+.incident-badge{font-size:10px;font-weight:600;padding:2px 10px;border-radius:var(--radius-pill);text-transform:uppercase;letter-spacing:0.06em;}
+.badge-critical{background:rgba(255,45,45,0.15);color:var(--accent-red);}
+.badge-warning{background:rgba(255,184,0,0.15);color:var(--accent-amber);}
+.badge-info{background:rgba(0,214,255,0.12);color:var(--accent-cyan);}
+.badge-resolved{background:rgba(0,255,135,0.1);color:var(--accent-green);}
+.incident-loc{font-size:12px;color:var(--text-dim);margin-bottom:8px;}
+.incident-time{font-size:11px;color:var(--text-dim);}
+.incident-actions{display:flex;gap:8px;margin-top:10px;}
+.inc-btn{flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:none;transition:all 0.2s;}
+.inc-btn.claim{border-color:rgba(0,214,255,0.3);color:var(--accent-cyan);}
+.inc-btn.claim:hover{background:rgba(0,214,255,0.1);}
+.inc-btn.resolve{border-color:rgba(0,255,135,0.3);color:var(--accent-green);}
+.inc-btn.resolve:hover{background:rgba(0,255,135,0.1);}
+.inc-btn.brief{border-color:rgba(255,184,0,0.3);color:var(--accent-amber);}
+.inc-btn.brief:hover{background:rgba(255,184,0,0.1);}
+.dash-stats-row{display:flex;gap:10px;margin-bottom:16px;}
+.dash-stat{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;}
+.dash-stat-num{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;}
+.dash-stat-lbl{font-size:10px;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-top:4px;}
+.staff-online{margin-top:16px;}
+.staff-online-title{font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;}
+.staff-list{display:flex;flex-direction:column;gap:8px;}
+.staff-row{display:flex;align-items:center;gap:10px;}
+.staff-row-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.staff-row-info{flex:1;}
+.staff-row-name{font-size:13px;font-weight:500;}
+.staff-row-status{font-size:11px;color:var(--text-dim);}
+.staff-row-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-busy{background:var(--accent-red);}
+.dot-available{background:var(--accent-green);}
+.dot-en-route{background:var(--accent-amber);}
+/* BROADCAST LOG */
+.broadcast-log{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.broadcast-log-title{font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;}
+.broadcast-feed{display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;}
+.broadcast-item{background:var(--bg-secondary);border-left:3px solid var(--accent-cyan);border-radius:6px;padding:8px 10px;font-size:12px;}
+.broadcast-time{font-size:10px;color:var(--text-dim);margin-bottom:2px;}
+.broadcast-msg{color:var(--text-muted);line-height:1.4;}
+.broadcast-msg strong{color:var(--text-primary);}
+.broadcast-floor{font-size:10px;color:var(--accent-cyan);margin-top:2px;}
+</style>
+<div class="dash-layout">
+  <div class="dash-sidebar-space"></div>
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div class="dash-topbar-left">
+        <div class="dash-topbar-title">NEXUS WAR ROOM</div>
+        <div class="dash-status-pill"><div class="dash-status-dot"></div>2 ACTIVE INCIDENTS</div>
+      </div>
+      <div class="dash-topbar-right">
+        <div class="dash-time" id="dashClock">21:47:33</div>
+        <div class="dash-staff-badge"><div class="staff-avatar">RS</div>Rajesh Singh — Duty Manager</div>
+      </div>
+    </div>
+    <div class="dash-content">
+      <div class="dash-left">
+        <div class="dash-section-title">Live Floor Map — Grand Nexus Hotel</div>
+        <div class="floor-map-wrap">
+          <canvas class="floor-map-canvas" id="floorMapCanvas"></canvas>
+          <div class="floor-map-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent-red)"></div>Critical</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent-amber)"></div>Warning</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent-cyan)"></div>Active</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.15)"></div>Clear</div>
+          </div>
+        </div>
+        <div class="broadcast-bar">
+          <span style="font-size:18px">📣</span>
+          <input class="broadcast-input" placeholder="Broadcast message to floor or entire hotel..." id="broadcastInput">
+          <select class="broadcast-floor-sel" id="broadcastFloor">
+            <option>All Floors</option>
+            <option>Floor 1</option><option>Floor 2</option><option>Floor 3</option>
+            <option>Floor 4</option><option>Floor 5</option><option>Floor 6</option>
+            <option>Floor 7</option><option>Floor 8</option>
+          </select>
+          <button class="broadcast-send" onclick="sendBroadcast()">Broadcast</button>
+        </div>
+      </div>
+      <div class="dash-right">
+        <div class="dash-stats-row">
+          <div class="dash-stat"><div class="dash-stat-num" style="color:var(--accent-red)" id="statActive">2</div><div class="dash-stat-lbl">Active</div></div>
+          <div class="dash-stat"><div class="dash-stat-num" style="color:var(--accent-amber)" id="statPending">1</div><div class="dash-stat-lbl">Pending</div></div>
+          <div class="dash-stat"><div class="dash-stat-num" style="color:var(--accent-green)" id="statResolved">7</div><div class="dash-stat-lbl">Resolved</div></div>
+          <div class="dash-stat"><div class="dash-stat-num" style="color:var(--accent-cyan)" id="statStaff">6</div><div class="dash-stat-lbl">On Duty</div></div>
+        </div>
+        <div class="dash-section-title">Incident Feed</div>
+        <div class="incident-list" id="incidentList"></div>
+        <div class="staff-online">
+          <div class="staff-online-title">Staff On Duty</div>
+          <div class="staff-list" id="staffList"></div>
+        </div>
+        <div class="broadcast-log">
+          <div class="broadcast-log-title">📣 Recent Broadcasts</div>
+          <div class="broadcast-feed" id="broadcastFeed"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /view-staff-dashboard -->
+<!-- ═══════════════ VIEW 4: RESPONDER BRIEF ═══════════════ -->
+<div class="view" id="view-responder-brief">
+<style>
+.brief-layout{display:flex;height:100vh;overflow:hidden;}
+.brief-main{flex:1;overflow-y:auto;padding:40px 40px 40px 80px;background:var(--bg-secondary);}
+.brief-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px;}
+.brief-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,45,45,0.12);border:1px solid rgba(255,45,45,0.3);border-radius:var(--radius-pill);padding:6px 16px;font-size:12px;font-weight:700;color:var(--accent-red);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;}
+.brief-badge-dot{width:8px;height:8px;background:var(--accent-red);border-radius:50%;animation:blink 1s infinite;}
+.brief-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,56px);line-height:1;margin-bottom:4px;}
+.brief-id{font-size:13px;color:var(--text-dim);letter-spacing:0.06em;}
+.brief-meta-right{text-align:right;}
+.brief-timestamp{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--accent-cyan);}
+.brief-ts-label{font-size:11px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;}
+.brief-qr-hint{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);margin-top:8px;justify-content:flex-end;}
+.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+.brief-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-card);padding:24px;}
+.brief-card-label{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;}
+.brief-card-value{font-size:18px;font-weight:700;color:var(--text-primary);}
+.brief-card-sub{font-size:13px;color:var(--text-muted);margin-top:4px;}
+.brief-card.accent{border-color:var(--border-accent);background:rgba(0,214,255,0.05);}
+.brief-card.danger{border-color:rgba(255,45,45,0.3);background:rgba(255,45,45,0.05);}
+.brief-section{margin-bottom:24px;}
+.brief-section-title{font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.brief-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.timeline{display:flex;flex-direction:column;gap:0;}
+.tl-item{display:flex;gap:16px;padding-bottom:20px;position:relative;}
+.tl-item:not(:last-child)::before{content:'';position:absolute;left:15px;top:28px;bottom:0;width:1px;background:var(--border);}
+.tl-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);background:var(--bg-card);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;z-index:1;}
+.tl-dot.active{border-color:var(--accent-cyan);background:rgba(0,214,255,0.1);}
+.tl-dot.done{border-color:var(--accent-green);background:rgba(0,255,135,0.1);}
+.tl-dot.critical{border-color:var(--accent-red);background:rgba(255,45,45,0.1);}
+.tl-content{flex:1;padding-top:4px;}
+.tl-title{font-size:14px;font-weight:600;margin-bottom:2px;}
+.tl-time{font-size:11px;color:var(--text-dim);}
+.tl-body{font-size:13px;color:var(--text-muted);margin-top:6px;line-height:1.6;}
+.route-list{display:flex;flex-direction:column;gap:8px;}
+.route-item{display:flex;align-items:center;gap:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:14px;}
+.route-num{width:24px;height:24px;background:var(--gradient-accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.brief-actions{display:flex;gap:12px;flex-wrap:wrap;padding:20px 0;}
+.brief-act-btn{flex:1;min-width:160px;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:none;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.brief-act-primary{background:var(--gradient-accent);border:none;color:#fff;}
+.brief-act-primary:hover{box-shadow:var(--shadow-glow-blue);transform:translateY(-2px);}
+.brief-act-danger{background:transparent;border:1px solid rgba(255,45,45,0.4);color:var(--accent-red);}
+.brief-act-danger:hover{background:rgba(255,45,45,0.1);}
+.brief-act-secondary{background:transparent;border:1px solid var(--border);color:var(--text-muted);}
+.brief-act-secondary:hover{border-color:var(--border-accent);color:var(--accent-cyan);}
+.live-update-banner{background:rgba(0,255,135,0.08);border:1px solid rgba(0,255,135,0.2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:24px;font-size:13px;color:var(--accent-green);}
+.live-dot{width:7px;height:7px;background:var(--accent-green);border-radius:50%;animation:blink 1.5s infinite;}
+</style>
+<div class="brief-layout">
+  <div style="width:60px;flex-shrink:0;"></div>
+  <div class="brief-main">
+    <div class="brief-header">
+      <div>
+        <div class="brief-badge"><div class="brief-badge-dot"></div>LIVE INCIDENT BRIEF</div>
+        <div class="brief-title">MEDICAL EMERGENCY<br>— ROOM 412</div>
+        <div class="brief-id">INC-2025-0847 · The Grand Nexus Hotel · East Wing</div>
+      </div>
+      <div class="brief-meta-right">
+        <div class="brief-timestamp" id="briefClock">21:47:33</div>
+        <div class="brief-ts-label">Live — Auto-updating</div>
+        <div class="brief-qr-hint">📱 Share link active</div>
+      </div>
+    </div>
+    <div class="live-update-banner">
+      <div class="live-dot"></div>
+      This brief is updating in real time. Responders always see current incident status.
+    </div>
+    <div class="brief-grid">
+      <div class="brief-card danger">
+        <div class="brief-card-label">Crisis Type</div>
+        <div class="brief-card-value">🏥 Medical Emergency</div>
+        <div class="brief-card-sub">Reported by guest — Room 412</div>
+      </div>
+      <div class="brief-card accent">
+        <div class="brief-card-label">Location</div>
+        <div class="brief-card-value">Floor 4, Room 412</div>
+        <div class="brief-card-sub">East Wing · Elevator Bank B</div>
+      </div>
+      <div class="brief-card">
+        <div class="brief-card-label">Time of Alert</div>
+        <div class="brief-card-value">21:43:11</div>
+        <div class="brief-card-sub">4 minutes, 22 seconds ago</div>
+      </div>
+      <div class="brief-card">
+        <div class="brief-card-label">Staff Response</div>
+        <div class="brief-card-value">Priya Sharma — On Floor 4</div>
+        <div class="brief-card-sub">Claimed 21:43:48 · First aid kit retrieved</div>
+      </div>
+    </div>
+    <div class="brief-section">
+      <div class="brief-section-title">Access Route</div>
+      <div class="route-list">
+        <div class="route-item"><div class="route-num">1</div>Enter via Main Lobby entrance — North side</div>
+        <div class="route-item"><div class="route-num">2</div>Take Elevator Bank B to Floor 4 (leftmost bank)</div>
+        <div class="route-item"><div class="route-num">3</div>Turn right — Room 412 is 3rd door on the left</div>
+        <div class="route-item"><div class="route-num">4</div>Staff member Priya Sharma will meet you at elevator exit</div>
+      </div>
+    </div>
+    <div class="brief-section">
+      <div class="brief-section-title">Incident Timeline</div>
+      <div class="timeline" id="briefTimeline">
+        <div class="tl-item"><div class="tl-dot critical">🆘</div><div class="tl-content"><div class="tl-title">SOS Alert Triggered</div><div class="tl-time">21:43:11</div><div class="tl-body">Guest in Room 412 activated SOS — Medical Emergency selected.</div></div></div>
+        <div class="tl-item"><div class="tl-dot done">✓</div><div class="tl-content"><div class="tl-title">Staff Notified</div><div class="tl-time">21:43:11</div><div class="tl-body">All on-duty staff alerted via NEXUS. 6 staff received notification.</div></div></div>
+        <div class="tl-item"><div class="tl-dot done">✓</div><div class="tl-content"><div class="tl-title">Incident Claimed — Priya Sharma</div><div class="tl-time">21:43:48</div><div class="tl-body">Priya Sharma (Floor 4 Supervisor) claimed incident. En route with first aid kit.</div></div></div>
+        <div class="tl-item"><div class="tl-dot active">↗</div><div class="tl-content"><div class="tl-title">First Responders Dispatched</div><div class="tl-time">21:44:02</div><div class="tl-body">Emergency services called. ETA 4 minutes. Live brief link shared.</div></div></div>
+        <div class="tl-item"><div class="tl-dot">⏳</div><div class="tl-content"><div class="tl-title">Awaiting Responder Arrival</div><div class="tl-time">Pending</div><div class="tl-body">Responders briefed via this link. No verbal handoff required on arrival.</div></div></div>
+      </div>
+    </div>
+    <div class="brief-actions">
+      <button class="brief-act-btn brief-act-primary" onclick="switchView('staff-dashboard')">📊 Open War Room</button>
+      <button class="brief-act-btn brief-act-danger" onclick="alert('Incident escalated to Level 2')">⚠️ Escalate Severity</button>
+      <button class="brief-act-btn brief-act-secondary" onclick="copyShareLink()">🔗 Copy Share Link</button>
+      <button class="brief-act-btn brief-act-secondary" onclick="resolveFromBrief()">✅ Mark Resolved</button>
+    </div>
+  </div>
+</div>
+</div><!-- /view-responder-brief -->
+<!-- ═══════════════ VIEW 5: HOW IT WORKS ═══════════════ -->
+<div class="view" id="view-how-works">
+<style>
+.how-works-view{min-height:100vh;background:var(--bg-primary);display:flex;flex-direction:column;padding:80px 40px 40px 100px;overflow:hidden;}
+.how-works-header{text-align:center;margin-bottom:60px;position:relative;z-index:1;}
+.how-works-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,7vw,96px);letter-spacing:0.05em;line-height:1;margin-bottom:16px;background:var(--gradient-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.how-works-subtitle{font-size:18px;color:var(--text-muted);max-width:600px;margin:0 auto;line-height:1.7;}
+.how-works-canvas-container{flex:1;display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:40px;min-height:400px;}
+.how-works-diagram{width:100%;max-width:1200px;height:400px;background:rgba(0,214,255,0.03);border:1px solid var(--border-accent);border-radius:24px;padding:40px;display:flex;align-items:center;justify-content:space-between;gap:40px;position:relative;overflow:hidden;}
+.hw-surface{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;}
+.hw-surface-icon{font-size:64px;margin-bottom:20px;display:block;}
+.hw-surface-name{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.05em;margin-bottom:8px;color:var(--text-primary);}
+.hw-surface-role{font-size:13px;color:var(--text-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:16px;}
+.hw-surface-desc{font-size:14px;color:var(--text-dim);text-align:center;max-width:200px;line-height:1.6;}
+.hw-flow-arrow{flex:0 0 60px;display:flex;align-items:center;justify-content:center;font-size:32px;color:var(--accent-cyan);opacity:0.6;animation:flowPulse 2s ease-in-out infinite;}
+@keyframes flowPulse{0%,100%{opacity:0.6;transform:translateX(0);}50%{opacity:1;transform:translateX(8px);}}
+.how-works-phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:60px;position:relative;z-index:1;}
+.hw-phase-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:32px;transition:all 0.3s;cursor:none;}
+.hw-phase-card:hover{border-color:var(--border-accent);background:var(--bg-card-hover);transform:translateY(-4px);box-shadow:var(--shadow-glow-cyan);}
+.hw-phase-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent-cyan);margin-bottom:8px;opacity:0.7;}
+.hw-phase-title{font-size:18px;font-weight:700;margin-bottom:12px;color:var(--text-primary);}
+.hw-phase-body{font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:16px;}
+.hw-phase-icon{font-size:32px;margin-top:12px;display:inline-block;}
+.hw-grid-container{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:40px;position:relative;z-index:1;}
+.hw-grid-item{background:rgba(0,214,255,0.05);border:1px solid var(--border-accent);border-radius:16px;padding:24px;text-align:center;transition:all 0.3s;}
+.hw-grid-item:hover{background:rgba(0,214,255,0.1);transform:scale(1.05);}
+.hw-grid-icon{font-size:40px;margin-bottom:12px;display:block;}
+.hw-grid-label{font-size:13px;font-weight:600;letter-spacing:0.05em;color:var(--accent-cyan);text-transform:uppercase;}
+.hw-grid-value{font-size:20px;color:var(--text-primary);margin-top:8px;font-weight:700;}
+.how-works-cta{text-align:center;margin-top:60px;position:relative;z-index:1;}
+.hw-cta-btn{padding:14px 48px;background:var(--gradient-accent);border:none;border-radius:var(--radius-pill);color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:none;transition:transform 0.2s,box-shadow 0.2s;}
+.hw-cta-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-glow-blue);}
+@media(max-width:768px){
+  .how-works-view{padding:60px 20px 40px 80px;}
+  .how-works-diagram{flex-direction:column;height:auto;gap:20px;padding:24px;}
+  .hw-flow-arrow{transform:rotate(90deg);flex:0 0 40px;}
+  .hw-grid-container{grid-template-columns:1fr;}
+}
+</style>
+
+<div class="how-works-view">
+  <div class="how-works-header">
+    <div class="how-works-title">HOW NEXUS WORKS</div>
+    <div class="how-works-subtitle">Three integrated surfaces. One unified brain. Instant coordination across every crisis response layer.</div>
+  </div>
+
+  <div class="how-works-canvas-container">
+    <div class="how-works-diagram">
+      <div class="hw-surface">
+        <span class="hw-surface-icon">📱</span>
+        <div class="hw-surface-name">Guest SOS</div>
+        <div class="hw-surface-role">Trigger Layer</div>
+        <div class="hw-surface-desc">One tap. Instant alert. Location auto-detected. No app. No login.</div>
+      </div>
+      
+      <div class="hw-flow-arrow">→</div>
+      
+      <div class="hw-surface">
+        <span class="hw-surface-icon">🖥️</span>
+        <div class="hw-surface-name">War Room</div>
+        <div class="hw-surface-role">Command Center</div>
+        <div class="hw-surface-desc">Live floor map. Incident claim. Coordinated response. Zero duplicate.</div>
+      </div>
+      
+      <div class="hw-flow-arrow">→</div>
+      
+      <div class="hw-surface">
+        <span class="hw-surface-icon">🚑</span>
+        <div class="hw-surface-name">Responder Brief</div>
+        <div class="hw-surface-role">Intelligence Layer</div>
+        <div class="hw-surface-desc">Auto-generated live link. Real-time updates. Fully informed arrival.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="how-works-phases">
+    <div class="hw-phase-card">
+      <div class="hw-phase-num">01</div>
+      <div class="hw-phase-title">GUEST SIGNALS CRISIS</div>
+      <div class="hw-phase-body">Guest scans QR code in room. Selects crisis type (medical, fire, security, etc). Location instantly captured by WiFi triangulation.</div>
+      <span class="hw-phase-icon">🚨</span>
+    </div>
+
+    <div class="hw-phase-card">
+      <div class="hw-phase-num">02</div>
+      <div class="hw-phase-title">STAFF NOTIFIED INSTANTLY</div>
+      <div class="hw-phase-body">Alert pushed to war room in <1 second. Floor map shows incident location. All relevant staff (concierge, security, housekeeping) see it immediately.</div>
+      <span class="hw-phase-icon">📡</span>
+    </div>
+
+    <div class="hw-phase-card">
+      <div class="hw-phase-num">03</div>
+      <div class="hw-phase-title">STAFF CLAIMS & COORDINATES</div>
+      <div class="hw-phase-body">Responding staff member claims incident—eliminating duplicate response. One tap broadcasts real-time updates to all staff. Updates sync with brief automatically.</div>
+      <span class="hw-phase-icon">✋</span>
+    </div>
+
+    <div class="hw-phase-card">
+      <div class="hw-phase-num">04</div>
+      <div class="hw-phase-title">RESPONDER DISPATCH</div>
+      <div class="hw-phase-body">Staff generates live shareable brief with one tap. Crisis type, exact location, access routes, actions taken—all real-time. Sent to 911 dispatch + responder apps.</div>
+      <span class="hw-phase-icon">📲</span>
+    </div>
+
+    <div class="hw-phase-card">
+      <div class="hw-phase-num">05</div>
+      <div class="hw-phase-title">RESPONDER ARRIVES INFORMED</div>
+      <div class="hw-phase-body">First responders see live brief en route. Location confirmed. Crisis details known. Access routes clear. Staff can update brief in real-time as they assist.</div>
+      <span class="hw-phase-icon">🚑</span>
+    </div>
+
+    <div class="hw-phase-card">
+      <div class="hw-phase-num">06</div>
+      <div class="hw-phase-title">COMPLETE RESOLUTION</div>
+      <div class="hw-phase-body">Incident marked resolved in war room. Auto-logged with timestamps. Full response timeline captured. Next incident starts fresh—system never fragmented.</div>
+      <span class="hw-phase-icon">✅</span>
+    </div>
+  </div>
+
+  <div class="hw-grid-container">
+    <div class="hw-grid-item">
+      <span class="hw-grid-icon">⚡</span>
+      <div class="hw-grid-label">Response Speed</div>
+      <div class="hw-grid-value">8min → 47sec</div>
+    </div>
+    <div class="hw-grid-item">
+      <span class="hw-grid-icon">🎯</span>
+      <div class="hw-grid-label">Communication Gaps</div>
+      <div class="hw-grid-value">3 → 0</div>
+    </div>
+    <div class="hw-grid-item">
+      <span class="hw-grid-icon">✅</span>
+      <div class="hw-grid-label">Staff Coverage</div>
+      <div class="hw-grid-value">100% No App</div>
+    </div>
+  </div>
+
+  <div class="how-works-cta">
+    <button class="hw-cta-btn" onclick="switchView('staff-dashboard')">See Live Demo →</button>
+  </div>
+</div>
+</div><!-- /view-how-works -->
+<!-- ═══════════════ VIEW 6: DEMO MODE ═══════════════ -->
+<div class="view" id="view-demo-mode">
+<style>
+.demo-layout{display:flex;height:100vh;overflow:hidden;}
+.demo-main{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:0 0 0 60px;}
+.demo-header{padding:24px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.demo-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.08em;}
+.demo-title span{color:var(--accent-cyan);}
+.demo-controls{display:flex;align-items:center;gap:12px;}
+.demo-play-btn{width:40px;height:40px;border-radius:50%;background:var(--gradient-accent);border:none;color:#fff;font-size:16px;cursor:none;display:flex;align-items:center;justify-content:center;transition:transform 0.2s,box-shadow 0.2s;}
+.demo-play-btn:hover{transform:scale(1.1);box-shadow:var(--shadow-glow-blue);}
+.demo-speed{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:12px;padding:6px 10px;outline:none;cursor:none;}
+.demo-stage-label{font-size:12px;color:var(--text-dim);letter-spacing:0.08em;}
+.demo-body{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;overflow:hidden;}
+.demo-panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.demo-panel:last-child{border-right:none;}
+.demo-panel-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.demo-panel-icon{font-size:20px;}
+.demo-panel-title{font-size:14px;font-weight:700;}
+.demo-panel-status{margin-left:auto;font-size:11px;padding:3px 10px;border-radius:var(--radius-pill);}
+.demo-panel-body{flex:1;overflow-y:auto;padding:16px;}
+/* GUEST PANEL */
+.demo-phone{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:20px;max-width:240px;margin:0 auto;}
+.demo-phone-top{font-size:10px;text-align:center;color:var(--text-dim);margin-bottom:16px;letter-spacing:0.1em;}
+.demo-crisis-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.dcm-btn{background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 4px;text-align:center;font-size:10px;color:var(--text-dim);cursor:none;transition:all 0.2s;}
+.dcm-btn.active{border-color:var(--accent-red);color:var(--accent-red);background:rgba(255,45,45,0.1);}
+.demo-sos-btn{width:80px;height:80px;border-radius:50%;background:var(--gradient-danger);border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:12px auto;cursor:none;animation:demoSOSPulse 2s ease-in-out infinite;position:relative;}
+@keyframes demoSOSPulse{0%,100%{box-shadow:0 0 20px rgba(255,45,45,0.4);}50%{box-shadow:0 0 40px rgba(255,45,45,0.7);}}
+.demo-sos-btn span{font-size:22px;color:#fff;}
+.demo-sos-btn small{font-size:9px;font-weight:700;letter-spacing:0.1em;color:#fff;}
+/* STAFF PANEL */
+.demo-log{display:flex;flex-direction:column;gap:8px;}
+.demo-log-item{background:var(--bg-card);border-left:3px solid var(--border);border-radius:0 8px 8px 0;padding:10px 12px;font-size:12px;opacity:0;transform:translateX(-10px);transition:all 0.4s;}
+.demo-log-item.visible{opacity:1;transform:translateX(0);}
+.demo-log-item.log-alert{border-left-color:var(--accent-red);}
+.demo-log-item.log-claim{border-left-color:var(--accent-cyan);}
+.demo-log-item.log-broadcast{border-left-color:var(--accent-amber);}
+.demo-log-item.log-resolve{border-left-color:var(--accent-green);}
+.log-time{font-size:10px;color:var(--text-dim);margin-bottom:2px;}
+.log-msg{color:var(--text-muted);line-height:1.5;}
+.log-msg strong{color:var(--text-primary);}
+/* RESPONDER PANEL */
+.demo-eta-ring{width:120px;height:120px;border-radius:50%;border:3px solid var(--accent-cyan);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:20px auto;position:relative;box-shadow:0 0 30px rgba(0,214,255,0.2);}
+.demo-eta-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--accent-cyan);line-height:1;}
+.demo-eta-lbl{font-size:10px;color:var(--text-dim);letter-spacing:0.1em;}
+.demo-brief-lines{display:flex;flex-direction:column;gap:6px;}
+.demo-brief-line{height:10px;border-radius:4px;background:var(--bg-card);animation:shimmer 2s infinite;}
+@keyframes shimmer{0%,100%{opacity:0.4;}50%{opacity:1;}}
+/* PROGRESS BAR */
+.demo-progress{padding:16px 32px;border-top:1px solid var(--border);flex-shrink:0;}
+.demo-progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:6px;}
+.demo-progress-track{height:4px;background:var(--bg-card);border-radius:2px;overflow:hidden;}
+.demo-progress-fill{height:100%;background:var(--gradient-accent);border-radius:2px;transition:width 0.5s linear;width:0%;}
+.demo-stage-pills{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.demo-stage-pill{font-size:10px;padding:3px 12px;border-radius:var(--radius-pill);border:1px solid var(--border);color:var(--text-dim);cursor:none;transition:all 0.2s;}
+.demo-stage-pill.active{border-color:var(--accent-cyan);color:var(--accent-cyan);background:rgba(0,214,255,0.1);}
+</style>
+<div class="demo-layout">
+  <div class="demo-main">
+    <div class="demo-header">
+      <div>
+        <div class="demo-title">NEXUS <span>LIVE DEMO</span></div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">Auto-running scenario: Medical Emergency — Room 412</div>
+      </div>
+      <div class="demo-controls">
+        <span class="demo-stage-label" id="demoStageLabel">Stage 1 of 5</span>
+        <select class="demo-speed" id="demoSpeedSel"><option value="1">1x Speed</option><option value="2">2x Speed</option><option value="0.5">0.5x Speed</option></select>
+        <button class="demo-play-btn" id="demoPlayBtn" onclick="toggleDemo()">⏸</button>
+        <button class="demo-play-btn" style="background:var(--bg-card);border:1px solid var(--border);" onclick="resetDemo()">↺</button>
+      </div>
+    </div>
+    <div class="demo-body">
+      <!-- GUEST PANEL -->
+      <div class="demo-panel">
+        <div class="demo-panel-header">
+          <div class="demo-panel-icon">📱</div>
+          <div class="demo-panel-title">Guest SOS Interface</div>
+          <div class="demo-panel-status" id="guestStatus" style="background:rgba(255,255,255,0.07);color:var(--text-dim)">Idle</div>
+        </div>
+        <div class="demo-panel-body">
+          <div class="demo-phone">
+            <div class="demo-phone-top">THE GRAND NEXUS HOTEL · ROOM 412</div>
+            <div class="demo-crisis-mini">
+              <div class="dcm-btn active" id="demoMedBtn">🏥<br>Medical</div>
+              <div class="dcm-btn">🔥<br>Fire</div>
+              <div class="dcm-btn">🚨<br>Security</div>
+              <div class="dcm-btn">🔧<br>Maint.</div>
+              <div class="dcm-btn">📢<br>Noise</div>
+              <div class="dcm-btn">❓<br>Other</div>
+            </div>
+            <div class="demo-sos-btn" id="demoSOSBtnEl"><span>🆘</span><small>SOS</small></div>
+            <div style="font-size:10px;text-align:center;color:var(--text-dim)">Tap to send emergency alert</div>
+          </div>
+          <div style="margin-top:16px;text-align:center;" id="demoGuestMsg"></div>
+        </div>
+      </div>
+      <!-- STAFF PANEL -->
+      <div class="demo-panel">
+        <div class="demo-panel-header">
+          <div class="demo-panel-icon">🖥️</div>
+          <div class="demo-panel-title">Staff War Room</div>
+          <div class="demo-panel-status" id="staffStatus" style="background:rgba(255,255,255,0.07);color:var(--text-dim)">Monitoring</div>
+        </div>
+        <div class="demo-panel-body">
+          <div class="demo-log" id="demoLog"></div>
+        </div>
+      </div>
+      <!-- RESPONDER PANEL -->
+      <div class="demo-panel">
+        <div class="demo-panel-header">
+          <div class="demo-panel-icon">🚑</div>
+          <div class="demo-panel-title">First Responder Brief</div>
+          <div class="demo-panel-status" id="responderStatus" style="background:rgba(255,255,255,0.07);color:var(--text-dim)">Standby</div>
+        </div>
+        <div class="demo-panel-body">
+          <div class="demo-eta-ring"><div class="demo-eta-num" id="demoETA">--</div><div class="demo-eta-lbl">MINUTES ETA</div></div>
+          <div class="demo-brief-lines" id="demoBriefLines">
+            <div class="demo-brief-line" style="width:90%"></div>
+            <div class="demo-brief-line" style="width:70%"></div>
+            <div class="demo-brief-line" style="width:80%"></div>
+            <div class="demo-brief-line" style="width:55%"></div>
+            <div class="demo-brief-line" style="width:75%"></div>
+          </div>
+          <div style="margin-top:16px;font-size:12px;color:var(--text-dim);text-align:center;" id="demoResponderMsg"></div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-progress">
+      <div class="demo-progress-label"><span id="demoProgressLabel">Initializing scenario...</span><span id="demoProgressPct">0%</span></div>
+      <div class="demo-progress-track"><div class="demo-progress-fill" id="demoProgressFill"></div></div>
+      <div class="demo-stage-pills">
+        <div class="demo-stage-pill active" id="pill0">1. Alert</div>
+        <div class="demo-stage-pill" id="pill1">2. Notify</div>
+        <div class="demo-stage-pill" id="pill2">3. Claim</div>
+        <div class="demo-stage-pill" id="pill3">4. Dispatch</div>
+        <div class="demo-stage-pill" id="pill4">5. Resolve</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /view-demo-mode -->
+<!-- ═══════════════ VIEW 7: RESPONDER PUBLIC BRIEF ═══════════════ -->
+<div class="view" id="view-responder-public-brief">
+<style>
+.public-brief-container{min-height:100vh;background:linear-gradient(135deg, rgba(0,80,255,0.08) 0%, rgba(0,214,255,0.04) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;font-family:'DM Sans',sans-serif;}
+.public-brief-wrapper{background:rgba(15,15,18,0.95);border:1px solid rgba(0,214,255,0.3);border-radius:24px;backdrop-filter:blur(20px);max-width:900px;width:100%;padding:48px;box-shadow:0 0 60px rgba(0,214,255,0.15);}
+.public-brief-header{text-align:center;margin-bottom:40px;}
+.public-brief-badge{display:inline-block;background:rgba(0,255,135,0.15);border:1px solid rgba(0,255,135,0.3);color:#00FF87;padding:6px 16px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.1em;margin-bottom:16px;}
+.public-brief-title{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:0.05em;color:#fff;margin-bottom:8px;text-shadow:0 0 30px rgba(0,214,255,0.2);}
+.public-brief-subtitle{font-size:18px;color:rgba(255,255,255,0.5);}
+.public-brief-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-bottom:40px;}
+.public-brief-card{background:rgba(255,255,255,0.05);border:1px solid rgba(0,214,255,0.2);border-radius:16px;padding:24px;}
+.public-brief-card-label{font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;}
+.public-brief-card-value{font-size:24px;font-weight:700;color:#fff;margin-bottom:4px;}
+.public-brief-card-sub{font-size:14px;color:rgba(255,255,255,0.6);}
+.public-brief-section{margin-bottom:32px;}
+.public-brief-section-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.05em;color:#00D6FF;margin-bottom:16px;border-bottom:2px solid rgba(0,214,255,0.3);padding-bottom:12px;}
+.public-route-list{display:flex;flex-direction:column;gap:12px;}
+.public-route-item{display:flex;align-items:flex-start;gap:16px;background:rgba(0,214,255,0.08);padding:12px;border-radius:12px;border-left:3px solid #00D6FF;}
+.public-route-num{background:linear-gradient(135deg, #0050FF, #00D6FF);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;}
+.public-route-text{font-size:14px;color:rgba(255,255,255,0.8);line-height:1.5;}
+.public-timeline{display:flex;flex-direction:column;gap:0;}
+.public-tl-item{display:flex;gap:16px;padding:16px;border-left:2px solid rgba(0,214,255,0.3);}
+.public-tl-item:first-child{border-radius:12px 12px 0 0;background:rgba(0,214,255,0.05);}
+.public-tl-item:last-child{border-radius:0 0 12px 12px;background:rgba(0,214,255,0.05);}
+.public-tl-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:4px;}
+.public-tl-dot.critical{background:rgba(255,45,45,0.2);border:2px solid #FF2D2D;}
+.public-tl-dot.success{background:rgba(0,255,135,0.2);border:2px solid #00FF87;}
+.public-tl-dot.active{background:rgba(0,214,255,0.2);border:2px solid #00D6FF;}
+.public-tl-content{flex:1;}
+.public-tl-title{font-weight:700;color:#fff;margin-bottom:4px;}
+.public-tl-time{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;}
+.public-tl-body{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5;}
+.public-brief-footer{text-align:center;padding-top:24px;border-top:1px solid rgba(0,214,255,0.2);}
+.public-brief-cta{display:inline-block;padding:12px 32px;background:linear-gradient(135deg, #0050FF, #00D6FF);border:none;border-radius:24px;color:#fff;font-weight:600;font-size:15px;cursor:none;transition:transform 0.2s,box-shadow 0.2s;text-decoration:none;}
+.public-brief-cta:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(0,214,255,0.3);}
+.public-brief-meta{text-align:center;margin-top:20px;font-size:12px;color:rgba(255,255,255,0.4);}
+@media(max-width:768px){.public-brief-wrapper{padding:24px;}.public-brief-grid{grid-template-columns:1fr;}.public-brief-title{font-size:32px;}}
+</style>
+<div class="public-brief-container">
+  <div class="public-brief-wrapper">
+    <div class="public-brief-header">
+      <div class="public-brief-badge">🚨 LIVE INCIDENT BRIEF</div>
+      <div class="public-brief-title">MEDICAL EMERGENCY</div>
+      <div class="public-brief-subtitle">Grand Nexus Hotel — Room 412, Floor 4</div>
+    </div>
+    
+    <div class="public-brief-grid">
+      <div class="public-brief-card">
+        <div class="public-brief-card-label">Crisis Type</div>
+        <div class="public-brief-card-value">🏥 Medical</div>
+        <div class="public-brief-card-sub">Guest reported — Immediate response</div>
+      </div>
+      <div class="public-brief-card">
+        <div class="public-brief-card-label">Location</div>
+        <div class="public-brief-card-value">Room 412</div>
+        <div class="public-brief-card-sub">Floor 4 · East Wing · Elevator B</div>
+      </div>
+      <div class="public-brief-card">
+        <div class="public-brief-card-label">Time Alert</div>
+        <div class="public-brief-card-value">21:43:11</div>
+        <div class="public-brief-card-sub">4 minutes 22 seconds ago</div>
+      </div>
+      <div class="public-brief-card">
+        <div class="public-brief-card-label">On-Scene Staff</div>
+        <div class="public-brief-card-value">Priya Sharma</div>
+        <div class="public-brief-card-sub">Floor 4 Supervisor · First Aid Kit</div>
+      </div>
+    </div>
+
+    <div class="public-brief-section">
+      <div class="public-brief-section-title">Access Route to Incident</div>
+      <div class="public-route-list">
+        <div class="public-route-item">
+          <div class="public-route-num">1</div>
+          <div class="public-route-text"><strong>Main Entrance:</strong> Enter via North side lobby entrance (Main Drive access)</div>
+        </div>
+        <div class="public-route-item">
+          <div class="public-route-num">2</div>
+          <div class="public-route-text"><strong>Elevator Bank B:</strong> Take elevator bank B (leftmost) to Floor 4</div>
+        </div>
+        <div class="public-route-item">
+          <div class="public-route-num">3</div>
+          <div class="public-route-text"><strong>Corridor:</strong> Turn right — Room 412 is 3rd door on the left (East corridor)</div>
+        </div>
+        <div class="public-route-item">
+          <div class="public-route-num">4</div>
+          <div class="public-route-text"><strong>Staff Handoff:</strong> Priya Sharma will meet you at elevator exit with full situation briefing</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="public-brief-section">
+      <div class="public-brief-section-title">Live Timeline</div>
+      <div class="public-timeline">
+        <div class="public-tl-item">
+          <div class="public-tl-dot critical">🆘</div>
+          <div class="public-tl-content">
+            <div class="public-tl-title">SOS Alert Triggered</div>
+            <div class="public-tl-time">21:43:11</div>
+            <div class="public-tl-body">Guest in Room 412 activated emergency alert — Medical Emergency selected</div>
+          </div>
+        </div>
+        <div class="public-tl-item">
+          <div class="public-tl-dot success">✓</div>
+          <div class="public-tl-content">
+            <div class="public-tl-title">Staff Notified</div>
+            <div class="public-tl-time">21:43:11</div>
+            <div class="public-tl-body">All 6 on-duty staff instantly alerted via NEXUS system</div>
+          </div>
+        </div>
+        <div class="public-tl-item">
+          <div class="public-tl-dot success">✓</div>
+          <div class="public-tl-content">
+            <div class="public-tl-title">Incident Claimed</div>
+            <div class="public-tl-time">21:43:48</div>
+            <div class="public-tl-body">Sarah K. (Floor 4 Supervisor) responded — Proceeding to scene with first aid kit</div>
+          </div>
+        </div>
+        <div class="public-tl-item">
+          <div class="public-tl-dot active">📞</div>
+          <div class="public-tl-content">
+            <div class="public-tl-title">Dispatch Notified</div>
+            <div class="public-tl-time">21:44:02</div>
+            <div class="public-tl-body">Emergency services contacted — ETA 4 minutes — This brief auto-updated in real time</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="public-brief-section">
+      <div class="public-brief-section-title">Critical Info for Responders</div>
+      <div style="background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.3);border-radius:12px;padding:16px;">
+        <div style="color:#FFB800;font-weight:600;margin-bottom:8px;">Key Situation Details:</div>
+        <ul style="margin:0;padding-left:20px;color:rgba(255,255,255,0.8);line-height:1.8;font-size:14px;">
+          <li>Guest conscious and responsive when alert sent</li>
+          <li>Staff member Priya Sharma is trained in first aid</li>
+          <li>Room is on standard floor layout — no special access required</li>
+          <li>No known complications or allergies reported</li>
+          <li>Hotel staff will coordinate lobby access — elevator will be held on Floor 4</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="public-brief-footer">
+      <div style="font-size:14px;color:rgba(255,255,255,0.8);margin-bottom:16px;">
+        <strong>This brief is live and auto-updating.</strong> Hotel staff are actively managing the scene.
+      </div>
+      <button class="public-brief-cta" onclick="switchView('landing')">← Back to Landing</button>
+      <div class="public-brief-meta">Share Link: nexus.incident.brief/share/INC-0847 | This page refreshes automatically</div>
+    </div>
+  </div>
+</div>
+</div><!-- /view-responder-public-brief -->
+<script>
+// ══════════════════════════════════════════════
+function openModal(type) {
+  const modal = document.getElementById(type + 'Modal');
+  if (modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeModal(event) {
+  if (event && event.target.id && !event.target.id.includes('Modal')) return;
+  const modals = document.querySelectorAll('.modal-overlay.active');
+  modals.forEach(m => m.classList.remove('active'));
+  document.body.style.overflow = 'auto';
+}
+
+function smoothScroll(id) {
+  const el = document.getElementById(id);
+  if (el && currentView === 'landing') {
+    el.scrollIntoView({ behavior: 'smooth' });
+  } else if (el) {
+    switchView('landing');
+    setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 600);
+  }
+}
+
+function handleContactSubmit(e) {
+  e.preventDefault();
+  showToast('📧 Message sent! We\'ll be in touch within 24 hours.');
+  closeModal();
+  e.target.reset();
+}
+// ══════════════════════════════════════════════
+const views = ['landing','guest-sos','staff-dashboard','responder-brief','how-works','demo-mode','responder-public-brief'];
+let currentView = 'landing';
+
+function switchView(id) {
+  const curr = document.getElementById('view-' + currentView);
+  const next = document.getElementById('view-' + id);
+  if (!next || id === currentView) return;
+  curr.classList.add('view-transition-out');
+  setTimeout(() => {
+    curr.classList.remove('view-transition-out');
+    curr.classList.remove('active');
+    next.classList.add('active','view-transition-in');
+    setTimeout(() => next.classList.remove('view-transition-in'), 600);
+    currentView = id;
+    updateSidebar();
+    onViewEnter(id);
+  }, 300);
+}
+
+function updateSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.style.display = currentView === 'landing' ? 'none' : 'flex';
+  document.querySelectorAll('.sidebar-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.view === currentView);
+  });
+}
+
+function onViewEnter(id) {
+  if (id === 'staff-dashboard') { initDashboard(); startDashClock(); }
+  if (id === 'responder-brief') { startBriefClock(); }
+  if (id === 'demo-mode') { resetDemo(); startDemoAuto(); }
+  if (id === 'landing') { window.scrollTo(0,0); }
+}
+
+document.querySelectorAll('.sidebar-item').forEach(el => {
+  el.addEventListener('click', () => switchView(el.dataset.view));
+});
+
+// ══════════════════════════════════════════════
+// CUSTOM CURSOR
+// ══════════════════════════════════════════════
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+(function animCursor() {
+  dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+})();
+
+document.addEventListener('mouseover', e => {
+  const el = e.target.closest('button,a,.crisis-btn,.gap-card,.how-step,.sidebar-item,.cta-pill,.btn-primary,.btn-secondary,.btn-gradient,.nav-cta,.inc-btn,.brief-act-btn,.demo-play-btn,.dcm-btn,.demo-speed,.broadcast-send');
+  const danger = e.target.closest('[data-type="medical"],[data-type="fire"],[data-type="security"],.sos-panic-btn,.inc-btn,.brief-act-danger');
+  ring.classList.toggle('hover', !!el && !danger);
+  ring.classList.toggle('danger', !!danger);
+});
+
+// ══════════════════════════════════════════════
+// SCROLL PROGRESS BAR
+// ══════════════════════════════════════════════
+const scrollBar = document.getElementById('scroll-progress');
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+  scrollBar.style.width = pct + '%';
+}, { passive: true });
+
+// ══════════════════════════════════════════════
+// NAVBAR SCROLL
+// ══════════════════════════════════════════════
+const nav = document.getElementById('nexusNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// ══════════════════════════════════════════════
+// HERO CANVAS — SCROLLYTELLING
+// ══════════════════════════════════════════════
+const heroCanvas = document.getElementById('hero-canvas');
+const hctx = heroCanvas ? heroCanvas.getContext('2d') : null;
+let heroW = 0, heroH = 0;
+let targetProgress = 0, canvasProgress = 0;
+let pulseT = 0;
+const phases = [document.getElementById('phase1Text'), document.getElementById('phase2Text'),
+                document.getElementById('phase3Text'), document.getElementById('phase4Text'),
+                document.getElementById('phase5Text')];
+
+function resizeHeroCanvas() {
+  if (!heroCanvas) return;
+  heroW = heroCanvas.width = heroCanvas.offsetWidth;
+  heroH = heroCanvas.height = heroCanvas.offsetHeight;
+}
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+function drawBuilding(ctx, cx, cy, alpha, highlightFloor, highlightColor) {
+  const floors = 8, roomsPerFloor = 6;
+  const fw = 60, fh = 24, gap = 4;
+  const totalW = roomsPerFloor * (fw + gap) - gap;
+  const totalH = floors * (fh + gap) - gap;
+  const bx = cx - totalW / 2, by = cy - totalH / 2;
+  for (let f = 0; f < floors; f++) {
+    for (let r = 0; r < roomsPerFloor; r++) {
+      const x = bx + r * (fw + gap), y = by + (floors - 1 - f) * (fh + gap);
+      const isHL = f === highlightFloor;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = isHL ? (highlightColor || 'rgba(255,45,45,0.35)') : 'rgba(255,255,255,0.06)';
+      if (isHL) {
+        ctx.shadowColor = highlightColor || '#FF2D2D';
+        ctx.shadowBlur = 12;
+      }
+      ctx.strokeStyle = isHL ? (highlightColor || 'rgba(255,45,45,0.6)') : 'rgba(255,255,255,0.12)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(x, y, fw, fh, 3);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+}
+
+function drawIcon(ctx, x, y, type, alpha, scale) {
+  scale = scale || 1;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  ctx.font = '28px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  if (type === 'guest') ctx.fillText('👤', 0, 0);
+  else if (type === 'staff') ctx.fillText('👷', 0, 0);
+  else if (type === 'responder') ctx.fillText('🚑', 0, 0);
+  else if (type === 'phone') ctx.fillText('📱', 0, 0);
+  ctx.restore();
+}
+
+function drawConnector(ctx, x1, y1, x2, y2, color, alpha, dashed, offset) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  if (dashed) ctx.setLineDash([8, 6]);
+  ctx.lineDashOffset = -(offset || 0);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawLabel(ctx, x, y, text, color, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = color || 'rgba(255,255,255,0.7)';
+  ctx.font = "500 12px 'DM Sans', sans-serif";
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+function drawPulseRing(ctx, cx, cy, t, color, maxR) {
+  const r = maxR * t, al = 1 - t;
+  ctx.save();
+  ctx.globalAlpha = al * 0.5;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+let animOffset = 0;
+function drawHeroCanvas(progress) {
+  if (!hctx) return;
+  animOffset += 0.8;
+  pulseT = (pulseT + 0.004) % 1;
+  hctx.clearRect(0, 0, heroW, heroH);
+
+  // Radial background glow
+  const rg = hctx.createRadialGradient(heroW/2, heroH/2, 0, heroW/2, heroH/2, heroW*0.6);
+  rg.addColorStop(0, '#050815'); rg.addColorStop(1, '#050505');
+  hctx.fillStyle = rg; hctx.fillRect(0,0,heroW,heroH);
+
+  const cx = heroW / 2, cy = heroH / 2;
+  const p = progress;
+
+  // PHASE 0-15%: Hero state
+  if (p < 0.85) {
+    const a = p < 0.15 ? 1 : clamp(1 - (p - 0.15) * 3, 0, 1);
+    const buildA = clamp(a * 1.5, 0, 1);
+    drawBuilding(hctx, cx, cy, buildA, -1, null);
+    drawPulseRing(hctx, cx, cy, pulseT, '#0050FF', 180);
+    drawPulseRing(hctx, cx, cy, (pulseT + 0.33) % 1, '#0050FF', 180);
+    const iconA = clamp(buildA, 0, 0.8);
+    drawIcon(hctx, cx - 160, cy + 130, 'guest', iconA, 1);
+    drawIcon(hctx, cx, cy + 150, 'staff', iconA, 1);
+    drawIcon(hctx, cx + 160, cy + 130, 'responder', iconA, 1);
+    drawConnector(hctx, cx-140, cy+120, cx-20, cy+70, 'rgba(0,214,255,0.3)', iconA, false, 0);
+    drawConnector(hctx, cx, cy+130, cx, cy+70, 'rgba(0,214,255,0.3)', iconA, false, 0);
+    drawConnector(hctx, cx+140, cy+120, cx+20, cy+70, 'rgba(0,214,255,0.3)', iconA, false, 0);
+  }
+
+  // PHASE 15-40%: Guest layer
+  if (p >= 0.1 && p < 0.6) {
+    const a = p < 0.15 ? (p-0.1)*20 : p < 0.4 ? 1 : clamp(1-(p-0.4)*5,0,1);
+    const gx = cx - 200, gy = cy;
+    drawBuilding(hctx, cx+40, cy, a*0.6, 3, 'rgba(255,45,45,0.4)');
+    drawIcon(hctx, gx, gy, 'guest', a, 1.3);
+    drawConnector(hctx, gx+24, gy, cx-60, cy, '#00D6FF', a, false, animOffset);
+    hctx.save(); hctx.globalAlpha = a;
+    hctx.strokeStyle = 'rgba(255,45,45,0.8)'; hctx.lineWidth = 2;
+    hctx.shadowColor = '#FF2D2D'; hctx.shadowBlur = 20;
+    hctx.beginPath(); hctx.arc(gx+70, gy-20, 22, 0, Math.PI*2); hctx.stroke();
+    hctx.restore();
+    drawLabel(hctx, gx+70, gy-20, '🆘', '#FF2D2D', a);
+    drawLabel(hctx, cx-20, cy-80, 'Guest triggers SOS', 'rgba(0,214,255,0.9)', a);
+    drawLabel(hctx, cx-20, cy-100, 'Room 412 · Floor 4', 'rgba(255,45,45,0.9)', a);
+    drawIcon(hctx, cx+180, cy-40, 'phone', a*0.7, 1.2);
+  }
+
+  // PHASE 40-65%: Staff coordination
+  if (p >= 0.35 && p < 0.8) {
+    const a = p < 0.4 ? (p-0.35)*20 : p < 0.65 ? 1 : clamp(1-(p-0.65)*5,0,1);
+    drawBuilding(hctx, cx, cy, a*0.7, 3, 'rgba(255,45,45,0.5)');
+    const staffPositions = [[cx-180,cy-60],[cx+180,cy-40],[cx-40,cy+150]];
+    staffPositions.forEach((pos,i) => {
+      drawIcon(hctx, pos[0], pos[1], 'staff', a, 1);
+      drawConnector(hctx, pos[0], pos[1], cx, cy-20, 'rgba(0,214,255,0.5)', a, true, animOffset+i*10);
+    });
+    const lbls = ['Staff A — Claimed','Staff B — Floor 4','Broadcast active'];
+    const lblPositions = [[cx-180,cy-90],[cx+180,cy-70],[cx-40,cy+180]];
+    lbls.forEach((l,i) => drawLabel(hctx, lblPositions[i][0], lblPositions[i][1], l, 'rgba(0,214,255,0.8)', a));
+    drawLabel(hctx, cx, cy-20, 'CRISIS', 'rgba(255,45,45,0.9)', a);
+  }
+
+  // PHASE 65-85%: Responder handoff
+  if (p >= 0.6 && p < 0.95) {
+    const a = p < 0.65 ? (p-0.6)*20 : p < 0.85 ? 1 : clamp(1-(p-0.85)*10,0,1);
+    drawBuilding(hctx, cx, cy, a*0.6, 3, 'rgba(255,45,45,0.6)');
+    const resp_x = lerp(cx+350, cx+160, clamp((p-0.65)/0.2,0,1));
+    drawIcon(hctx, resp_x, cy+60, 'responder', a, 1.4);
+    drawConnector(hctx, cx+80, cy+30, resp_x-30, cy+50, '#FFB800', a, true, animOffset);
+    drawLabel(hctx, cx+180, cy-30, 'Live brief transmitted', 'rgba(255,184,0,0.9)', a);
+    drawLabel(hctx, cx+180, cy-10, 'ETA: 4 min', 'rgba(0,214,255,0.9)', a);
+    drawLabel(hctx, cx, cy-60, 'EVACUATING', 'rgba(255,45,45,1)', a);
+  }
+
+  // PHASE 85-100%: Resolution
+  if (p >= 0.82) {
+    const a = clamp((p-0.82)*6, 0, 1);
+    drawBuilding(hctx, cx, cy, a*0.8, -1, null);
+    drawPulseRing(hctx, cx, cy, pulseT, '#00FF87', 200);
+    drawPulseRing(hctx, cx, cy, (pulseT+0.5)%1, '#00FF87', 200);
+    [[cx-160,cy+130,'guest'],[cx,cy+150,'staff'],[cx+160,cy+130,'responder']].forEach(([x,y,t]) => {
+      drawIcon(hctx, x, y, t, a, 1);
+      drawConnector(hctx, x+(t==='guest'?20:t==='responder'?-20:0), y-20, cx, cy+60, 'rgba(0,255,135,0.6)', a, false, 0);
+    });
+    hctx.save();
+    hctx.globalAlpha = a;
+    hctx.font = "700 16px 'DM Sans',sans-serif";
+    hctx.fillStyle = '#00FF87';
+    hctx.textAlign = 'center';
+    hctx.shadowColor = '#00FF87'; hctx.shadowBlur = 20;
+    hctx.fillText('Incident Resolved. 00:08:42', cx, cy - 30);
+    hctx.restore();
+  }
+}
+
+function updateTextPhases(p) {
+  const boundaries = [0, 0.15, 0.40, 0.65, 0.85, 1.01];
+  phases.forEach((ph, i) => {
+    if (!ph) return;
+    const inPhase = p >= boundaries[i] && p < boundaries[i+1];
+    ph.classList.toggle('visible', inPhase);
+  });
+}
+
+window.addEventListener('scroll', () => {
+  const wrapper = document.getElementById('canvasWrapper');
+  if (!wrapper) return;
+  const rect = wrapper.getBoundingClientRect();
+  const scrolled = -rect.top;
+  const total = wrapper.offsetHeight - window.innerHeight;
+  targetProgress = clamp(scrolled / total, 0, 1);
+  updateTextPhases(targetProgress);
+}, { passive: true });
+
+function heroAnimLoop() {
+  canvasProgress += (targetProgress - canvasProgress) * 0.06;
+  drawHeroCanvas(canvasProgress);
+  requestAnimationFrame(heroAnimLoop);
+}
+
+window.addEventListener('resize', resizeHeroCanvas);
+resizeHeroCanvas();
+heroAnimLoop();
+</script>
+<script>
+// ══════════════════════════════════════════════
+// FLOOR MAP CANVAS (Dashboard)
+// ══════════════════════════════════════════════
+let floorMapCtx, floorMapW, floorMapH;
+let floorMapAnimFrame;
+
+const incidentRooms = {
+  '412': { color: '#FF2D2D', label: 'MEDICAL', pulse: 0 },
+  '215': { color: '#FFB800', label: 'NOISE', pulse: 0.33 },
+  '601': { color: '#00D6FF', label: 'MAINT.', pulse: 0.66 }
+};
+
+function initFloorMap() {
+  const canvas = document.getElementById('floorMapCanvas');
+  if (!canvas) return;
+  floorMapCtx = canvas.getContext('2d');
+  resizeFloorMap();
+  cancelAnimationFrame(floorMapAnimFrame);
+  animFloorMap();
+}
+
+function resizeFloorMap() {
+  const canvas = document.getElementById('floorMapCanvas');
+  if (!canvas || !canvas.parentElement) return;
+  canvas.width = canvas.parentElement.offsetWidth;
+  canvas.height = canvas.parentElement.offsetHeight;
+  floorMapW = canvas.width; floorMapH = canvas.height;
+}
+
+let fmPulse = 0;
+function animFloorMap() {
+  if (!floorMapCtx) return;
+  fmPulse += 0.025;
+  drawFloorMap(fmPulse);
+  floorMapAnimFrame = requestAnimationFrame(animFloorMap);
+}
+
+function drawFloorMap(t) {
+  const ctx = floorMapCtx;
+  if (!ctx) return;
+  ctx.clearRect(0, 0, floorMapW, floorMapH);
+  ctx.fillStyle = '#0F0F12';
+  ctx.fillRect(0, 0, floorMapW, floorMapH);
+
+  const floors = 8, rooms = 10;
+  const padX = 80, padY = 40;
+  const cellW = (floorMapW - padX * 2) / rooms;
+  const cellH = (floorMapH - padY * 2) / floors;
+  const rw = cellW - 6, rh = cellH - 6;
+
+  // Floor labels
+  ctx.font = "600 11px 'DM Sans', sans-serif";
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.textAlign = 'right';
+  for (let f = 0; f < floors; f++) {
+    const y = padY + (floors - 1 - f) * cellH + cellH / 2;
+    ctx.fillText('Floor ' + (f + 1), padX - 10, y + 4);
+  }
+
+  // Room numbers header
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.font = "10px 'DM Sans', sans-serif";
+  for (let r = 0; r < rooms; r++) {
+    const x = padX + r * cellW + cellW / 2;
+    ctx.fillText((r + 1).toString().padStart(2, '0'), x, padY - 10);
+  }
+
+  // Draw rooms
+  for (let f = 0; f < floors; f++) {
+    for (let r = 0; r < rooms; r++) {
+      const rx = padX + r * cellW + 3;
+      const ry = padY + (floors - 1 - f) * cellH + 3;
+      const roomId = (f + 1).toString() + (r + 1).toString().padStart(2, '0');
+      const inc = incidentRooms[roomId];
+      const pulseVal = 0.5 + 0.5 * Math.sin(t * 2 + (inc ? inc.pulse * Math.PI * 2 : 0));
+
+      ctx.save();
+      if (inc) {
+        ctx.fillStyle = inc.color.replace(')', ', 0.18)').replace('rgb(', 'rgba(').replace('#FF2D2D', 'rgba(255,45,45,0.2)').replace('#FFB800', 'rgba(255,184,0,0.15)').replace('#00D6FF', 'rgba(0,214,255,0.12)');
+        ctx.strokeStyle = inc.color;
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = inc.color;
+        ctx.shadowBlur = 8 + 8 * pulseVal;
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.04)';
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = 0.5;
+      }
+      ctx.beginPath();
+      ctx.roundRect(rx, ry, rw, rh, 3);
+      ctx.fill(); ctx.stroke();
+
+      if (inc) {
+        ctx.font = "700 8px 'DM Sans', sans-serif";
+        ctx.fillStyle = inc.color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 0;
+        ctx.fillText(inc.label, rx + rw / 2, ry + rh / 2);
+      }
+      ctx.restore();
+    }
+  }
+}
+
+// ══════════════════════════════════════════════
+// INCIDENTS DATA & RENDERING
+// ══════════════════════════════════════════════
+const incidentData = [
+  { id: 'INC-0847', type: '🏥 Medical Emergency', loc: 'Room 412 · Floor 4', time: '21:43', severity: 'critical', status: 'Active', assignee: 'Priya Sharma' },
+  { id: 'INC-0846', type: '📢 Noise Complaint', loc: 'Room 215 · Floor 2', time: '21:38', severity: 'warning', status: 'Claimed', assignee: 'Arun Patel' },
+  { id: 'INC-0845', type: '🔧 Maintenance', loc: 'Room 601 · Floor 6', time: '21:22', severity: 'info', status: 'Pending', assignee: 'Unassigned' },
+  { id: 'INC-0844', type: '🚨 Security Check', loc: 'Lobby · Ground Floor', time: '20:58', severity: 'warning', status: 'Resolved', assignee: 'Vikram Singh' },
+  { id: 'INC-0843', type: '🔥 Fire Alarm Test', loc: 'Floor 3 — East', time: '20:31', severity: 'info', status: 'Resolved', assignee: 'Priya Sharma' },
+];
+
+const broadcastData = [];
+
+const staffData = [
+  { name: 'Priya Sharma', role: 'Floor 4 Supervisor', status: 'On Incident', dot: 'busy', color: '#FF2D2D', initials: 'PS' },
+  { name: 'Arun Patel', role: 'Floor 2 Attendant', status: 'On Incident', dot: 'busy', color: '#FFB800', initials: 'AP' },
+  { name: 'Vikram Singh', role: 'Security Lead', status: 'Available', dot: 'available', color: '#00D6FF', initials: 'VS' },
+  { name: 'Neha Gupta', role: 'Front Desk', status: 'Available', dot: 'available', color: '#00FF87', initials: 'NG' },
+  { name: 'Rajesh Kumar', role: 'Maintenance', status: 'En Route', dot: 'en-route', color: '#0050FF', initials: 'RK' },
+  { name: 'Pooja Desai', role: 'Guest Relations', status: 'Available', dot: 'available', color: '#9B59B6', initials: 'PD' },
+];
+
+function renderIncidents() {
+  const list = document.getElementById('incidentList');
+  if (!list) return;
+  list.innerHTML = incidentData.map(inc => `
+    <div class="incident-card ${inc.severity}${inc.status==='Resolved'?' resolved':''}">
+      <div class="incident-top">
+        <div class="incident-type">${inc.type}</div>
+        <div class="incident-badge badge-${inc.severity}">${inc.status}</div>
+      </div>
+      <div class="incident-loc">📍 ${inc.loc} &nbsp;·&nbsp; 👤 ${inc.assignee}</div>
+      <div class="incident-time">⏱ ${inc.time} &nbsp;·&nbsp; ${inc.id}</div>
+      ${inc.status !== 'Resolved' ? `
+      <div class="incident-actions">
+        ${inc.status==='Pending'?`<button class="inc-btn claim" onclick="claimIncident('${inc.id}')">Claim</button>`:''}
+        <button class="inc-btn resolve" onclick="resolveIncident('${inc.id}')">Resolve</button>
+        <button class="inc-btn brief" onclick="switchView('responder-brief')">Brief →</button>
+      </div>` : ''}
+    </div>
+  `).join('');
+}
+
+function claimIncident(id) {
+  const inc = incidentData.find(i => i.id === id);
+  if (inc) { inc.status = 'Claimed'; inc.assignee = 'You (Duty Mgr)'; renderIncidents(); showToast('Incident claimed — ' + id); }
+}
+
+function resolveIncident(id) {
+  const inc = incidentData.find(i => i.id === id);
+  if (inc) { inc.status = 'Resolved'; updateDashStats(); renderIncidents(); showToast('Incident resolved ✓'); }
+}
+
+function resolveFromBrief() {
+  resolveIncident('INC-0847');
+  switchView('staff-dashboard');
+}
+
+function copyShareLink() {
+  const shareLink = window.location.origin + '?view=responder-public-brief&incident=INC-0847';
+  navigator.clipboard.writeText(shareLink).then(() => {
+    showToast('🔗 Brief link copied: ' + shareLink);
+    setTimeout(() => {
+      switchView('responder-public-brief');
+      showToast('Opening shared brief...');
+    }, 1000);
+  }).catch(() => {
+    showToast('Failed to copy link. Try again.');
+  });
+}
+
+function updateDashStats() {
+  const active = incidentData.filter(i=>i.status==='Active'||i.status==='Claimed').length;
+  const pending = incidentData.filter(i=>i.status==='Pending').length;
+  const resolved = incidentData.filter(i=>i.status==='Resolved').length;
+  const s = document.getElementById('statActive');
+  const p = document.getElementById('statPending');
+  const r = document.getElementById('statResolved');
+  if (s) s.textContent = active;
+  if (p) p.textContent = pending;
+  if (r) r.textContent = resolved;
+  const badge = document.querySelector('.dash-status-pill');
+  if (badge && active > 0) badge.innerHTML = '<div class="dash-status-dot"></div>' + active + ' ACTIVE INCIDENT' + (active>1?'S':'');
+}
+
+function renderStaff() {
+  const list = document.getElementById('staffList');
+  if (!list) return;
+  list.innerHTML = staffData.map(s => `
+    <div class="staff-row">
+      <div class="staff-row-avatar" style="background:${s.color}22;border:1px solid ${s.color}44;color:${s.color}">${s.initials}</div>
+      <div class="staff-row-info"><div class="staff-row-name">${s.name}</div><div class="staff-row-status">${s.role} · ${s.status}</div></div>
+      <div class="staff-row-dot dot-${s.dot}"></div>
+    </div>
+  `).join('');
+}
+
+function initDashboard() {
+  renderIncidents();
+  renderStaff();
+  renderBroadcasts();
+  updateDashStats();
+  setTimeout(() => { initFloorMap(); }, 100);
+}
+
+function updateBriefTimeline() {
+  const timeline = document.getElementById('briefTimeline');
+  if (!timeline || broadcastData.length === 0) return;
+  
+  const baseHTML = `
+    <div class="tl-item"><div class="tl-dot critical">🆘</div><div class="tl-content"><div class="tl-title">SOS Alert Triggered</div><div class="tl-time">21:43:11</div><div class="tl-body">Guest in Room 412 activated SOS — Medical Emergency selected.</div></div></div>
+    <div class="tl-item"><div class="tl-dot done">✓</div><div class="tl-content"><div class="tl-title">Staff Notified</div><div class="tl-time">21:43:11</div><div class="tl-body">All on-duty staff alerted via NEXUS. 6 staff received notification.</div></div></div>
+    <div class="tl-item"><div class="tl-dot done">✓</div><div class="tl-content"><div class="tl-title">Incident Claimed — Sarah K.</div><div class="tl-time">21:43:48</div><div class="tl-body">Sarah K. (Floor 4 Supervisor) claimed incident. En route with first aid kit.</div></div></div>
+    <div class="tl-item"><div class="tl-dot active">↗</div><div class="tl-content"><div class="tl-title">First Responders Dispatched</div><div class="tl-time">21:44:02</div><div class="tl-body">Emergency services called. ETA 4 minutes. Live brief link shared.</div></div></div>
+  `;
+  
+  const broadcastHTML = broadcastData.map(bc => `
+    <div class="tl-item"><div class="tl-dot">📣</div><div class="tl-content"><div class="tl-title">Staff Broadcast</div><div class="tl-time">${bc.time}</div><div class="tl-body"><strong>${bc.staff}</strong> (${bc.floor}): ${bc.message}</div></div></div>
+  `).join('');
+  
+  timeline.innerHTML = baseHTML + broadcastHTML + `
+    <div class="tl-item"><div class="tl-dot">⏳</div><div class="tl-content"><div class="tl-title">Awaiting Responder Arrival</div><div class="tl-time">Pending</div><div class="tl-body">Responders briefed via this link. No verbal handoff required on arrival.</div></div></div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+// BROADCAST TOAST
+// ══════════════════════════════════════════════
+function sendBroadcast() {
+  const msgEl = document.getElementById('broadcastInput');
+  const floorEl = document.getElementById('broadcastFloor');
+  if (!msgEl || !msgEl.value.trim()) { showToast('Enter a message to broadcast'); return; }
+  
+  const now = new Date();
+  const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+  const floor = floorEl ? floorEl.value : 'All Floors';
+  
+  const broadcast = {
+    id: 'BC-' + Date.now(),
+    message: msgEl.value,
+    floor: floor,
+    time: timeStr,
+    staff: 'You (Duty Mgr)'
+  };
+  
+  broadcastData.unshift(broadcast);
+  renderBroadcasts();
+  updateBriefTimeline();
+  showToast('📣 Broadcast sent to ' + floor);
+  msgEl.value = '';
+}
+
+function renderBroadcasts() {
+  const feed = document.getElementById('broadcastFeed');
+  if (!feed) return;
+  feed.innerHTML = broadcastData.slice(0, 5).map(bc => `
+    <div class="broadcast-item">
+      <div class="broadcast-time">${bc.time}</div>
+      <div class="broadcast-msg"><strong>${bc.staff}</strong>: ${bc.message}</div>
+      <div class="broadcast-floor">→ ${bc.floor}</div>
+    </div>
+  `).join('');
+}
+
+let toastTimeout;
+function showToast(msg) {
+  let toast = document.getElementById('nexusToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'nexusToast';
+    toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:#0F0F12;border:1px solid rgba(0,214,255,0.3);border-radius:12px;padding:12px 24px;font-size:14px;color:#fff;z-index:9999;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;opacity:0;pointer-events:none;backdrop-filter:blur(20px);box-shadow:0 0 30px rgba(0,214,255,0.15);white-space:nowrap;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  toast.style.opacity = '1';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.style.transform = 'translateX(-50%) translateY(80px)';
+    toast.style.opacity = '0';
+  }, 2800);
+}
+</script>
+<script>
+// ══════════════════════════════════════════════
+// SOS SCREEN LOGIC
+// ══════════════════════════════════════════════
+let selectedCrisis = 'Medical Emergency';
+
+function selectCrisis(el, type) {
+  document.querySelectorAll('.crisis-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCrisis = type;
+}
+
+function sendSOS() {
+  const form = document.getElementById('sosForm');
+  const sent = document.getElementById('sosSent');
+  if (form && sent) {
+    form.style.display = 'none';
+    sent.style.display = 'flex';
+    showToast('SOS Sent — ' + selectedCrisis + ' · Room 412');
+  }
+}
+
+function resetSOS() {
+  const form = document.getElementById('sosForm');
+  const sent = document.getElementById('sosSent');
+  if (form && sent) {
+    sent.style.display = 'none';
+    form.style.display = 'block';
+    document.querySelectorAll('.crisis-btn').forEach(b => b.classList.remove('selected'));
+  }
+}
+
+// ══════════════════════════════════════════════
+// CLOCKS
+// ══════════════════════════════════════════════
+let dashClockInterval, briefClockInterval;
+
+function startDashClock() {
+  clearInterval(dashClockInterval);
+  function tick() {
+    const now = new Date();
+    const t = now.toTimeString().slice(0,8);
+    const el = document.getElementById('dashClock');
+    if (el) el.textContent = t;
+  }
+  tick(); dashClockInterval = setInterval(tick, 1000);
+}
+
+function startBriefClock() {
+  clearInterval(briefClockInterval);
+  function tick() {
+    const now = new Date();
+    const t = now.toTimeString().slice(0,8);
+    const el = document.getElementById('briefClock');
+    if (el) el.textContent = t;
+  }
+  tick(); briefClockInterval = setInterval(tick, 1000);
+}
+
+// ══════════════════════════════════════════════
+// DEMO MODE ENGINE
+// ══════════════════════════════════════════════
+const demoStages = [
+  {
+    label: 'Guest activates SOS alert — Medical Emergency selected',
+    pct: 20, duration: 3000,
+    run: () => {
+      document.getElementById('guestStatus').textContent = '🆘 Alerting';
+      document.getElementById('guestStatus').style.cssText = 'background:rgba(255,45,45,0.15);color:#FF2D2D;padding:3px 10px;border-radius:100px;font-size:11px;border:1px solid rgba(255,45,45,0.3)';
+      document.getElementById('demoMedBtn').classList.add('active');
+      setDemoGuestMsg('✅ SOS Sent — Help is coming!', '#00FF87');
+      addLog('log-alert', '21:43:11', '<strong>SOS Alert</strong> received — Medical Emergency, Room 412, Floor 4');
+      document.getElementById('demoETA').textContent = '--';
+    }
+  },
+  {
+    label: 'NEXUS notifies all on-duty staff instantly',
+    pct: 40, duration: 3500,
+    run: () => {
+      document.getElementById('staffStatus').textContent = '🔔 Notified';
+      document.getElementById('staffStatus').style.cssText = 'background:rgba(255,184,0,0.15);color:#FFB800;padding:3px 10px;border-radius:100px;font-size:11px;border:1px solid rgba(255,184,0,0.3)';
+      addLog('log-alert', '21:43:11', '<strong>6 staff members</strong> notified via NEXUS dashboard push');
+      addLog('log-claim', '21:43:18', 'Sarah K. — Floor 4 Supervisor: <strong>viewing incident</strong>');
+    }
+  },
+  {
+    label: 'Staff claims incident — en route with first aid',
+    pct: 60, duration: 4000,
+    run: () => {
+      addLog('log-claim', '21:43:48', 'Sarah K. <strong>claimed incident</strong> — en route with first aid kit');
+      addLog('log-broadcast', '21:43:52', '<strong>Broadcast</strong> to Floor 4: "Medical incident Room 412 — do not block corridor"');
+      document.getElementById('staffStatus').textContent = '✓ Claimed';
+      document.getElementById('staffStatus').style.cssText = 'background:rgba(0,214,255,0.12);color:#00D6FF;padding:3px 10px;border-radius:100px;font-size:11px;border:1px solid rgba(0,214,255,0.3)';
+    }
+  },
+  {
+    label: 'Emergency services dispatched — live brief transmitted',
+    pct: 80, duration: 4000,
+    run: () => {
+      document.getElementById('responderStatus').textContent = '🚑 Dispatched';
+      document.getElementById('responderStatus').style.cssText = 'background:rgba(255,45,45,0.12);color:#FF2D2D;padding:3px 10px;border-radius:100px;font-size:11px;border:1px solid rgba(255,45,45,0.3)';
+      document.getElementById('demoETA').textContent = '4';
+      document.getElementById('demoResponderMsg').textContent = '📄 Live brief link shared — auto-updating';
+      document.getElementById('demoResponderMsg').style.color = '#00D6FF';
+      addLog('log-alert', '21:44:02', '<strong>Emergency services</strong> called — ETA 4 minutes. Brief link shared.');
+      animateETA(4);
+    }
+  },
+  {
+    label: 'Incident resolved — response time: 8 minutes 42 seconds',
+    pct: 100, duration: 3000,
+    run: () => {
+      document.getElementById('guestStatus').textContent = '✓ Resolved';
+      document.getElementById('guestStatus').style.cssText = 'background:rgba(0,255,135,0.12);color:#00FF87;padding:3px 10px;border-radius:100px;font-size:11px;border:1px solid rgba(0,255,135,0.3)';
+      document.getElementById('staffStatus').textContent = '✓ Resolved';
+      document.getElementById('staffStatus').style.cssText = 'background:rgba(0,255,135,0.12);color:#00FF87;padding:3px 10px;border-radius:100px;font-size:11px;border:1px solid rgba(0,255,135,0.3)';
+      document.getElementById('responderStatus').textContent = '✓ Resolved';
+      document.getElementById('responderStatus').style.cssText = 'background:rgba(0,255,135,0.12);color:#00FF87;padding:3px 10px;border-radius:100px;font-size:11px;border:1px solid rgba(0,255,135,0.3)';
+      document.getElementById('demoResponderMsg').textContent = '✅ Incident closed — Response: 8m 42s';
+      document.getElementById('demoResponderMsg').style.color = '#00FF87';
+      addLog('log-resolve', '21:51:53', '✅ <strong>Incident resolved</strong> — Total response time: 8 minutes, 42 seconds');
+      showToast('🏆 Demo complete — Response time: 8m 42s');
+    }
+  }
+];
+
+let demoRunning = false, demoStageIndex = 0, demoTimer = null, demoSpeedMult = 1;
+
+function setDemoGuestMsg(msg, color) {
+  const el = document.getElementById('demoGuestMsg');
+  if (el) { el.textContent = msg; el.style.color = color || 'var(--text-muted)'; el.style.fontSize = '13px'; }
+}
+
+function addLog(cls, time, msg) {
+  const log = document.getElementById('demoLog');
+  if (!log) return;
+  const item = document.createElement('div');
+  item.className = 'demo-log-item ' + cls;
+  item.innerHTML = `<div class="log-time">${time}</div><div class="log-msg">${msg}</div>`;
+  log.appendChild(item);
+  setTimeout(() => item.classList.add('visible'), 50);
+  log.scrollTop = log.scrollHeight;
+}
+
+function animateETA(from) {
+  let val = from;
+  const iv = setInterval(() => {
+    val = Math.max(0, val - 0.1);
+    const el = document.getElementById('demoETA');
+    if (el) el.textContent = val <= 0 ? '0' : val.toFixed(1);
+    if (val <= 0) clearInterval(iv);
+  }, 200);
+}
+
+function updateDemoPills(idx) {
+  for (let i = 0; i < 5; i++) {
+    const p = document.getElementById('pill' + i);
+    if (p) p.classList.toggle('active', i === idx);
+  }
+  const sl = document.getElementById('demoStageLabel');
+  if (sl) sl.textContent = 'Stage ' + (idx + 1) + ' of 5';
+}
+
+function runDemoStage(idx) {
+  if (idx >= demoStages.length) { demoRunning = false; const pb = document.getElementById('demoPlayBtn'); if(pb) pb.textContent='▶'; return; }
+  const stage = demoStages[idx];
+  demoStageIndex = idx;
+  updateDemoPills(idx);
+  const pf = document.getElementById('demoProgressFill');
+  if (pf) pf.style.width = stage.pct + '%';
+  const pp = document.getElementById('demoProgressPct');
+  if (pp) pp.textContent = stage.pct + '%';
+  const pl = document.getElementById('demoProgressLabel');
+  if (pl) pl.textContent = stage.label;
+  stage.run();
+  if (demoRunning) {
+    const spd = parseFloat(document.getElementById('demoSpeedSel')?.value || 1);
+    demoTimer = setTimeout(() => runDemoStage(idx + 1), stage.duration / spd);
+  }
+}
+
+function startDemoAuto() {
+  demoRunning = true;
+  const pb = document.getElementById('demoPlayBtn');
+  if (pb) pb.textContent = '⏸';
+  runDemoStage(demoStageIndex);
+}
+
+function toggleDemo() {
+  const pb = document.getElementById('demoPlayBtn');
+  if (demoRunning) {
+    demoRunning = false; clearTimeout(demoTimer);
+    if (pb) pb.textContent = '▶';
+  } else {
+    demoRunning = true;
+    if (pb) pb.textContent = '⏸';
+    runDemoStage(demoStageIndex);
+  }
+}
+
+function resetDemo() {
+  clearTimeout(demoTimer);
+  demoRunning = false; demoStageIndex = 0;
+  const pb = document.getElementById('demoPlayBtn');
+  if (pb) pb.textContent = '▶';
+  const log = document.getElementById('demoLog'); if (log) log.innerHTML = '';
+  const pf = document.getElementById('demoProgressFill'); if (pf) pf.style.width = '0%';
+  const pp = document.getElementById('demoProgressPct'); if (pp) pp.textContent = '0%';
+  const pl = document.getElementById('demoProgressLabel'); if (pl) pl.textContent = 'Initializing scenario...';
+  const eta = document.getElementById('demoETA'); if (eta) eta.textContent = '--';
+  const rm = document.getElementById('demoResponderMsg'); if (rm) rm.textContent = '';
+  const gm = document.getElementById('demoGuestMsg'); if (gm) gm.textContent = '';
+  updateDemoPills(0);
+  ['guestStatus','staffStatus','responderStatus'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = id==='staffStatus'?'Monitoring':'Standby'; el.style.cssText='background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.3);padding:3px 10px;border-radius:100px;font-size:11px;'; }
+  });
+  document.getElementById('guestStatus').textContent = 'Idle';
+}
+
+// ══════════════════════════════════════════════
+// INIT ON LOAD
+// ══════════════════════════════════════════════
+window.addEventListener('load', () => {
+  updateSidebar();
+  // Intersection Observer for gap cards & how-steps
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.gap-card, .how-step').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = `opacity 0.6s ${i * 0.1}s ease, transform 0.6s ${i * 0.1}s ease, box-shadow 0.3s, border-color 0.3s, background 0.3s`;
+    observer.observe(el);
+  });
+});
+</script>
+</body>
+</html>
